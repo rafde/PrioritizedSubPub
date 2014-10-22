@@ -214,8 +214,8 @@ var EventPriorityBroadcaster = (function (w) {
             return null;
         },
         /**
-         * @param priorityName
          * @param tag
+         * @param eventName
          */
         'unSub': function (eventName, tag) {
             var event = this.getEvent(eventName);
@@ -272,11 +272,11 @@ var EventPriorityBroadcaster = (function (w) {
      *
      * @param {Object}          [options.pub]         For event publishing. If eventName is passed
      *                                                and options, options.unSub, or options.pub are undefined,
-     *                                                then options.args gets set to {} and the event publishes.
+     *                                                then options.pub gets set to {} and the event publishes.
      *
      * @param {Boolean}         [options.rePub]       If set to true and subscribing to an event and the event had
      *                                                published in the past, then re-publish for this subscriber
-     *                                                using the previous options.args.
+     *                                                using the previous options.pub.
      *
      * @param {String}          [options.unSub]       Required for un-subscribing from priority list.
      *                                                The string refers to the tag to remove from list of priorities.
@@ -285,15 +285,15 @@ var EventPriorityBroadcaster = (function (w) {
      *
      * @param {String}          [options.tag]         Optional for subscribing. Use for identifying and removing
      *                                                from priority list. Randomly generated if not defined when
-     *                                                subscribing (options.callback or options is a function).
+     *                                                subscribing (options.sub or options is a function).
      *
-     * @param {Integer}         [options.priority]    0-11 where 0 is the lowest (last to publish) priority and
+     * @param {int}         [options.priority]        0-11 where 0 is the lowest (last to publish) priority and
      *                                                11 is the highest (first to publish). Every subscription will
      *                                                append to the list of priorities, except for options.timing=1.
      *                                                If subscribing and options.priority is not set, 0 be used.
      *                                                This option is ignored by options.timing=1.
      *
-     * @param {Integer}         [options.timing]      When the priority should happen.
+     * @param {int}         [options.timing]          When the priority should happen.
      *                                                0 = before default timing. There can be many of these timings.
      *                                                1 = default publish event. There is only one default timing.
      *                                                2 = after default event. There can be many of these timings.
