@@ -1,8 +1,8 @@
 /* global describe*/
-describe('EventPriorityBroadcaster', function () {
-    "use strict";
-    /* global EventPriorityBroadcaster, it, EPB */
-    var testEPB = new EventPriorityBroadcaster('TEST'),
+describe('EventPriorityEmitter', function () {
+    'use strict';
+    /* global EventPriorityEmitter, it, EPB */
+    var testEPB = new EventPriorityEmitter('TEST'),
         testNumber = -1;
 
     it('subscribe then publish', function () {
@@ -87,7 +87,7 @@ describe('EventPriorityBroadcaster', function () {
                 'sub': function () {
                     testData[testName] = 1;
                 },
-                'timing' : 1
+                'timing' : 'def'
             }
         );
 
@@ -102,7 +102,7 @@ describe('EventPriorityBroadcaster', function () {
                 'sub': function () {
                     testData[testName] = num;
                 },
-                'timing' : 1
+                'timing' : 'def'
             }
         );
 
@@ -123,7 +123,7 @@ describe('EventPriorityBroadcaster', function () {
                 'sub': function () {
                     testData[testName] = num;
                 },
-                'timing' : 1
+                'timing' : 'def'
             }
         );
 
@@ -134,7 +134,7 @@ describe('EventPriorityBroadcaster', function () {
                 'sub': function () {
                     testData[testName] = 2;
                 },
-                'timing' : 2
+                'timing' : 'post'
             }
         );
 
@@ -149,7 +149,7 @@ describe('EventPriorityBroadcaster', function () {
                 'sub': function () {
                     testData[testName] = 5;
                 },
-                'timing' : 0
+                'timing' : 'pre'
             }
         );
 
@@ -302,7 +302,7 @@ describe('EventPriorityBroadcaster', function () {
                 'sub': function () {
                     testData[testName] = 5;
                 },
-                'timing': 0,
+                'timing': 'pre',
                 'priority': 5
             }
         );
@@ -314,7 +314,7 @@ describe('EventPriorityBroadcaster', function () {
                 'sub': function () {
                     testData[testName] = 2;
                 },
-                'timing': 0,
+                'timing': 'pre',
                 'priority': 2
             }
         );
@@ -326,7 +326,7 @@ describe('EventPriorityBroadcaster', function () {
                 'sub': function () {
                     testData[testName] = 8;
                 },
-                'timing': 0,
+                'timing': 'pre',
                 'priority': 8
             }
         );
@@ -351,7 +351,7 @@ describe('EventPriorityBroadcaster', function () {
                 'sub': function () {
                     testData[testName] = 5;
                 },
-                'timing': 0,
+                'timing': 'pre',
                 'priority': 5
             }
         );
@@ -363,7 +363,7 @@ describe('EventPriorityBroadcaster', function () {
                 'sub': function () {
                     testData[testName] = 2;
                 },
-                'timing': 0,
+                'timing': 'pre',
                 'priority': 2
             }
         );
@@ -375,7 +375,7 @@ describe('EventPriorityBroadcaster', function () {
                 'sub': function () {
                     testData[testName] = 8;
                 },
-                'timing': 0,
+                'timing': 'pre',
                 'priority': 8
             }
         );
@@ -401,7 +401,7 @@ describe('EventPriorityBroadcaster', function () {
                     testData[testName] = 'post 3';
                     subCount++;
                 },
-                'timing': 2,
+                'timing': 'post',
                 'priority': 3
             }
         );
@@ -414,7 +414,7 @@ describe('EventPriorityBroadcaster', function () {
                     testData[testName] = 'pre 8';
                     subCount++;
                 },
-                'timing': 0,
+                'timing': 'pre',
                 'priority': 8
             }
         );
@@ -427,7 +427,7 @@ describe('EventPriorityBroadcaster', function () {
                     testData[testName] = 'default';
                     subCount++;
                 },
-                'timing': 1,
+                'timing': 'def',
                 'priority': 5
             }
         );
@@ -440,7 +440,7 @@ describe('EventPriorityBroadcaster', function () {
                     testData[testName] = 11;
                     subCount++;
                 },
-                'timing': 0,
+                'timing': 'pre',
                 'priority': 11
             }
         );
@@ -453,7 +453,7 @@ describe('EventPriorityBroadcaster', function () {
                     testData[testName] = 'post 0';
                     subCount++;
                 },
-                'timing': 2,
+                'timing': 'post',
                 'priority': 0
             }
         );
@@ -481,7 +481,7 @@ describe('EventPriorityBroadcaster', function () {
                     testData[testName] = args.data;
                     subCount++;
                 },
-                'timing': 1,
+                'timing': 'def',
                 'priority': 3,
                 'rePub': true
             }
@@ -497,7 +497,7 @@ describe('EventPriorityBroadcaster', function () {
                     testData[testName] = 'pre 8';
                     subCount++;
                 },
-                'timing': 0,
+                'timing': 'pre',
                 'priority': 8
             }
         );
@@ -515,7 +515,7 @@ describe('EventPriorityBroadcaster', function () {
                     testData[testName] = 'replaced pre 8';
                     subCount++;
                 },
-                'timing': 0,
+                'timing': 'pre',
                 'priority': 8
             }
         );
@@ -540,7 +540,7 @@ describe('EventPriorityBroadcaster', function () {
                     testData[testName] = 'post 1';
                     subCount++;
                 },
-                'timing': 2,
+                'timing': 'post',
                 'priority': 1,
                 'rePub': true
             }
@@ -558,7 +558,7 @@ describe('EventPriorityBroadcaster', function () {
                     testData[testName] = 'post 1-again';
                     subCount++;
                 },
-                'timing': 2,
+                'timing': 'post',
                 'priority': 1
             }
         );

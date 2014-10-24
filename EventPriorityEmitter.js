@@ -1,4 +1,4 @@
-var EventPriorityBroadcaster = (function (w) {
+var EventPriorityEmitter = (function (w) {
     'use strict';
 
     var PRIORITY_TYPE = ['pre', 'def', 'post'],
@@ -12,7 +12,7 @@ var EventPriorityBroadcaster = (function (w) {
         var args;
         if (w.console && w.console.log) {
             args = fnArgsToArr.call(arguments);
-            args.unshift('EPB: ');
+            args.unshift('EPE: ');
             w.console.log(args);
         }
     }
@@ -150,22 +150,22 @@ var EventPriorityBroadcaster = (function (w) {
     /**
      * @constructor
      */
-    function EventPriorityBroadcaster(EPBName) {
-        this.epbName = '';
+    function EventPriorityEmitter(EPEName) {
+        this.epeName = '';
         this.events = {};
 
 
-        if (typeof EPBName === 'string') {
-            this.epbName += EPBName;
+        if (typeof EPEName === 'string') {
+            this.epeName += EPEName;
         } else {
-            this.epbName += 'EPB' + Math.ceil(Math.random() * 10000000);
+            this.epeName += 'EPE' + Math.ceil(Math.random() * 10000000);
         }
 
-        this.epbName += '::';
+        this.epeName += '::';
     }
 
-    EventPriorityBroadcaster.prototype = {
-        'constructor' : EventPriorityBroadcaster,
+    EventPriorityEmitter.prototype = {
+        'constructor' : EventPriorityEmitter,
         'pub': function (eventName, args) {
             var event = this.getEvent(eventName);
 
@@ -192,8 +192,8 @@ var EventPriorityBroadcaster = (function (w) {
                     config.priority = temp;
                 }
 
-                temp = parseInt(config.timing, 10);
-                if(!_isValidRange(temp, PRIORITY_TYPE.length - 1)) {
+                temp = fnIndexOf.call(PRIORITY_TYPE, config.timing);
+                if(temp < 0) {
                     config.timing = PRIORITY_TYPE[PRIORITY_TYPE.length - 1];
                 } else {
                     config.timing = PRIORITY_TYPE[temp];
@@ -202,14 +202,14 @@ var EventPriorityBroadcaster = (function (w) {
                 event.replaceSubId(config);
 
                 if(config.rePub && event.hasPub) {
-                    _debugLog(this.epbName + eventName + ' event was published. Re-publish subId ' + config.subId);
+                    _debugLog(this.epeName + eventName + ' event was published. Re-publish subId ' + config.subId);
                     config.sub.call(undefined, event.oldArgs);
                 }
 
                 return true;
             }
 
-            _debugLog(this.epbName + eventName + ' was not given a legitimate config');
+            _debugLog(this.epeName + eventName + ' was not given a legitimate config');
 
             return null;
         },
@@ -220,7 +220,7 @@ var EventPriorityBroadcaster = (function (w) {
         'unSub': function (eventName, subId) {
             var event = this.getEvent(eventName);
             if (event) {
-                _debugLog(this.epbName + 'un-subcribing subId ' + subId + ' from EVENT ' + eventName);
+                _debugLog(this.epeName + 'un-subcribing subId ' + subId + ' from EVENT ' + eventName);
                 event.removeSubId(subId);
             }
         },
@@ -228,8 +228,8 @@ var EventPriorityBroadcaster = (function (w) {
             var event = this.events[eventName];
 
             if (!event) {
-                _debugLog(this.epbName + 'Creating new subscription for EVENT ' + eventName);
-                this.events[eventName] = event = new Subscriptions(eventName, this.epbName);
+                _debugLog(this.epeName + 'Creating new subscription for EVENT ' + eventName);
+                this.events[eventName] = event = new Subscriptions(eventName, this.epeName);
             }
 
             return event;
@@ -251,7 +251,7 @@ var EventPriorityBroadcaster = (function (w) {
                 } else if (typeof options.sub === 'function') { //subscribe to priorityName
 
                     if(this.sub(eventName, options) === null) {
-                        _debugLog(this.epbName + 'Subscription definition was invalid and was not registered');
+                        _debugLog(this.epeName + 'Subscription definition was invalid and was not registered');
                     }
 
                 } else { //publish to priorityName
@@ -262,7 +262,7 @@ var EventPriorityBroadcaster = (function (w) {
         }
     };
 
-    _globalEventPriorities = new EventPriorityBroadcaster('GLOBAL');
+    _globalEventPriorities = new EventPriorityEmitter('GLOBAL');
 
     /**
      * @param {String}          [eventName=]          Name to give to the event.
@@ -294,19 +294,19 @@ var EventPriorityBroadcaster = (function (w) {
      *                                                This option is ignored by options.timing=1.
      *
      * @param {int}             [options.timing]      When the priority should happen.
-     *                                                0 = before default timing. There can be many of these timings.
-     *                                                1 = default publish event. There is only one default timing.
-     *                                                2 = after default event. There can be many of these timings.
+     *                                                pre = before default timing. There can be many of these timings.
+     *                                                def = default publish event. There is only one default timing.
+     *                                                post = after default event. There can be many of these timings.
      *                                                If subscribing and options.timing is not set, 2 will be used.
      *
      *
-     * @returns {undefined|Function}                  "new EventPriorityBroadcaster" returns a function with a new
-     *                                                private instance of EventPriorityBroadcaster.
+     * @returns {undefined|Function}                  "new EventPriorityEmitter" returns a function with a new
+     *                                                instance of EventPriorityEmitter for private use.
      *                                                Otherwise, it will publish, subscribe or un-subscribe to
-     *                                                global EventPriorityBroadcaster and return undefined.
+     *                                                global EventPriorityEmitter and return undefined.
      */
-    return function (privateEPB) {
-        if (typeof this === 'undefined') {
+    return function (privateEPE) {
+        if (typeof this === 'undefined' || this === w) {
             _globalEventPriorities.exec.apply(
                 _globalEventPriorities,
                 fnArgsToArr.call(arguments)
@@ -314,11 +314,11 @@ var EventPriorityBroadcaster = (function (w) {
         } else {
             //return new wrapper
             return (function () {
-                var EPB = new EventPriorityBroadcaster(privateEPB);
+                var EPE = new EventPriorityEmitter(privateEPE);
 
                 return function() {
-                    EPB.exec.apply(
-                        EPB,
+                    EPE.exec.apply(
+                        EPE,
                         fnArgsToArr.call(arguments)
                     );
                 };
