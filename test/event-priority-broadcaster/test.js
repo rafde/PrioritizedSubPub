@@ -34,7 +34,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName,
+                'subId': testName,
                 'sub': function (args) {
                     testData[testName] = args.data;
                 }
@@ -62,7 +62,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName,
+                'subId': testName,
                 'sub': function (args) {
                     testData[testName] = args.data;
                 },
@@ -83,7 +83,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName,
+                'subId': testName,
                 'sub': function () {
                     testData[testName] = 1;
                 },
@@ -98,7 +98,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName,
+                'subId': testName,
                 'sub': function () {
                     testData[testName] = num;
                 },
@@ -119,7 +119,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName,
+                'subId': testName,
                 'sub': function () {
                     testData[testName] = num;
                 },
@@ -130,7 +130,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + '-1',
+                'subId': testName + '-1',
                 'sub': function () {
                     testData[testName] = 2;
                 },
@@ -145,7 +145,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + '-1',
+                'subId': testName + '-1',
                 'sub': function () {
                     testData[testName] = 5;
                 },
@@ -166,7 +166,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName,
+                'subId': testName,
                 'sub': function () {
                     testData[testName] = 0;
                 },
@@ -177,7 +177,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + '-1',
+                'subId': testName + '-1',
                 'sub': function () {
                     testData[testName] = 1;
                 },
@@ -188,7 +188,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + '-2',
+                'subId': testName + '-2',
                 'sub': function () {
                     testData[testName] = 2;
                 },
@@ -199,7 +199,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + '-3',
+                'subId': testName + '-3',
                 'sub': function () {
                     testData[testName] = 3;
                 },
@@ -238,7 +238,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName,
+                'subId': testName,
                 'sub': function (args) {
                     testData[testName] = args.data;
                 }
@@ -256,7 +256,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName + '-1',
             {
-                'tag': testName + '-1',
+                'subId': testName + '-1',
                 'sub': function (args) {
                     testData[testName] = args.data;
                 },
@@ -277,7 +277,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName,
+                'subId': testName,
                 'sub': function (args) {
                     testData[testName] = args.data;
                 },
@@ -290,16 +290,15 @@ describe('EventPriorityBroadcaster', function () {
 
 
     it('Subscribe pre with priority 5, subscribe pre with priority 8, subscribe pre with priority 2', function () {
-        var num = ++testNumber,
-            testData = {},
-            testName = 'test' + num;
+        var testData = {},
+            testName = 'test' + ++testNumber;
 
-        testData[testName] = num;
+        testData[testName] = ++testNumber;
 
         testEPB(
             testName,
             {
-                'tag': testName + ' pre w/ p5',
+                'subId': testName + ' pre w/ p5',
                 'sub': function () {
                     testData[testName] = 5;
                 },
@@ -311,7 +310,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + ' pre w/ p2',
+                'subId': testName + ' pre w/ p2',
                 'sub': function () {
                     testData[testName] = 2;
                 },
@@ -323,7 +322,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + ' pre w/ p8',
+                'subId': testName + ' pre w/ p8',
                 'sub': function () {
                     testData[testName] = 8;
                 },
@@ -348,7 +347,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + ' pre w/ p5 1',
+                'subId': testName + ' pre w/ p5 1',
                 'sub': function () {
                     testData[testName] = 5;
                 },
@@ -360,7 +359,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + ' pre w/ p2',
+                'subId': testName + ' pre w/ p2',
                 'sub': function () {
                     testData[testName] = 2;
                 },
@@ -372,7 +371,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + ' pre w/ p8',
+                'subId': testName + ' pre w/ p8',
                 'sub': function () {
                     testData[testName] = 8;
                 },
@@ -397,7 +396,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + ' post w/ p3',
+                'subId': testName + ' post w/ p3',
                 'sub': function () {
                     testData[testName] = 'post 3';
                     subCount++;
@@ -410,7 +409,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + ' pre w/ p8',
+                'subId': testName + ' pre w/ p8',
                 'sub': function () {
                     testData[testName] = 'pre 8';
                     subCount++;
@@ -423,7 +422,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + ' default',
+                'subId': testName + ' default',
                 'sub': function () {
                     testData[testName] = 'default';
                     subCount++;
@@ -436,7 +435,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + ' pre w/ p11',
+                'subId': testName + ' pre w/ p11',
                 'sub': function () {
                     testData[testName] = 11;
                     subCount++;
@@ -449,7 +448,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + ' post w/ p0',
+                'subId': testName + ' post w/ p0',
                 'sub': function () {
                     testData[testName] = 'post 0';
                     subCount++;
@@ -477,7 +476,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + ' def',
+                'subId': testName + ' def',
                 'sub': function (args) {
                     testData[testName] = args.data;
                     subCount++;
@@ -493,7 +492,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + ' pre w/ p8',
+                'subId': testName + ' pre w/ p8',
                 'sub': function () {
                     testData[testName] = 'pre 8';
                     subCount++;
@@ -511,7 +510,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + ' pre w/ p8',
+                'subId': testName + ' pre w/ p8',
                 'sub': function () {
                     testData[testName] = 'replaced pre 8';
                     subCount++;
@@ -536,7 +535,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + ' post w/ p1',
+                'subId': testName + ' post w/ p1',
                 'sub': function () {
                     testData[testName] = 'post 1';
                     subCount++;
@@ -554,7 +553,7 @@ describe('EventPriorityBroadcaster', function () {
         testEPB(
             testName,
             {
-                'tag': testName + ' post w/ p1 again',
+                'subId': testName + ' post w/ p1 again',
                 'sub': function () {
                     testData[testName] = 'post 1-again';
                     subCount++;

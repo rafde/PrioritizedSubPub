@@ -38,7 +38,7 @@ var EventPriorityBroadcaster = (function (w) {
             timings[type] = [];
         }
 
-        this.tags = {};
+        this.subIds = {};
         this.hasPub = false;
         this.oldArgs = {};
         this.timings = timings;
@@ -47,13 +47,13 @@ var EventPriorityBroadcaster = (function (w) {
 
     Subscriptions.prototype = {
         'constructor': Subscriptions,
-        'replaceTag' : function (config) {
+        'replaceSubId' : function (config) {
             var timing,
                 priority;
 
-            this.removeTag(config.tag, false);
+            this.removeSubId(config.subId, false);
 
-            this.tags[config.tag] = config;
+            this.subIds[config.subId] = config;
 
             if (config.timing === 'def') {
 
@@ -68,35 +68,35 @@ var EventPriorityBroadcaster = (function (w) {
                     priority = timing[config.priority] = [];
                 }
 
-                priority.push(config.tag);
+                priority.push(config.subId);
             }
         },
-        'removeTag': function (tag, untrack) {
-            var tagData = this.tags[tag],
+        'removeSubId': function (subId, untrack) {
+            var subIdData = this.subIds[subId],
                 indexOf,
                 priority,
                 timing;
 
-            if (tagData && typeof tagData === 'object') {
+            if (subIdData && typeof subIdData === 'object') {
 
-                timing = this.timings[tagData.timing];
+                timing = this.timings[subIdData.timing];
 
                 if (typeof timing === 'function') {
                     _debugLog(this.eventName + 'removing default timing');
-                    this.timings[tagData.timing] = null;
+                    this.timings[subIdData.timing] = null;
 
                 } else if (
                     timing &&
                     timing.length &&
-                    (priority = timing[tagData.priority]) &&
+                    (priority = timing[subIdData.priority]) &&
                     priority.length &&
-                    (indexOf = fnIndexOf.call(priority, tag)) >= 0 /*Array.prototype.indexOf > IE 8*/
+                    (indexOf = fnIndexOf.call(priority, subId)) >= 0 /*Array.prototype.indexOf > IE 8*/
                 ){
                     priority.splice(indexOf, 1);
                 }
 
                 if (typeof untrack === 'undefined' || untrack === true) {
-                    delete this.tags[tag];
+                    delete this.subIds[subId];
                 }
             }
 
@@ -109,8 +109,8 @@ var EventPriorityBroadcaster = (function (w) {
                 priorities,
                 priority,
                 sidx,
-                tag,
-                tagData;
+                subId,
+                subIdData;
 
             //Clone?
             this.oldArgs = args;
@@ -131,13 +131,13 @@ var EventPriorityBroadcaster = (function (w) {
 
                         if (priority && priority.length) {
 
-                            for(sidx = 0, tag = priority[sidx]; sidx < priority.length; tag = priority[++sidx]) {
-                                tagData = this.tags[tag];
+                            for(sidx = 0, subId = priority[sidx]; sidx < priority.length; subId = priority[++sidx]) {
+                                subIdData = this.subIds[subId];
 
-                                if(tagData && typeof tagData.sub === 'function') {
-                                    _debugLog(this.eventName + 'Publishing to TAG ' + tag + ' TIMING ' + timing + ' PRIORITY ' + pidx);
+                                if(subIdData && typeof subIdData.sub === 'function') {
+                                    _debugLog(this.eventName + 'Publishing subId ' + subId + ' TIMING ' + timing + ' PRIORITY ' + pidx);
                                     //pass context if defined?
-                                    tagData.sub.call(undefined, this.oldArgs);
+                                    subIdData.sub.call(undefined, this.oldArgs);
                                 }
                             }
                         }
@@ -181,8 +181,8 @@ var EventPriorityBroadcaster = (function (w) {
 
                 event = this.getEvent(eventName);
 
-                if (typeof config.tag !== 'string') {
-                    config.tag = 'pr-' + Math.ceil(Math.random() * 10000000);
+                if (typeof config.subId !== 'string') {
+                    config.subId = 'pr-' + Math.ceil(Math.random() * 10000000);
                 }
 
                 temp = parseInt(config.priority, 10);
@@ -199,10 +199,10 @@ var EventPriorityBroadcaster = (function (w) {
                     config.timing = PRIORITY_TYPE[temp];
                 }
 
-                event.replaceTag(config);
+                event.replaceSubId(config);
 
                 if(config.rePub && event.hasPub) {
-                    _debugLog(this.epbName + eventName + ' event was published. Re-publish for TAG ' + config.tag);
+                    _debugLog(this.epbName + eventName + ' event was published. Re-publish subId ' + config.subId);
                     config.sub.call(undefined, event.oldArgs);
                 }
 
@@ -214,14 +214,14 @@ var EventPriorityBroadcaster = (function (w) {
             return null;
         },
         /**
-         * @param tag
+         * @param subId
          * @param eventName
          */
-        'unSub': function (eventName, tag) {
+        'unSub': function (eventName, subId) {
             var event = this.getEvent(eventName);
             if (event) {
-                _debugLog(this.epbName + 'un-subcribing TAG ' + tag + ' from EVENT ' + eventName);
-                event.removeTag(tag);
+                _debugLog(this.epbName + 'un-subcribing subId ' + subId + ' from EVENT ' + eventName);
+                event.removeSubId(subId);
             }
         },
         'getEvent': function (eventName) {
@@ -276,24 +276,24 @@ var EventPriorityBroadcaster = (function (w) {
      *
      * @param {Boolean}         [options.rePub]       If set to true and subscribing to an event and the event had
      *                                                published in the past, then re-publish for this subscriber
-     *                                                using the previous options.pub.
+     *                                                using the previous options.pub
      *
      * @param {String}          [options.unSub]       Required for un-subscribing from priority list.
-     *                                                The string refers to the tag to remove from list of priorities.
+     *                                                The string refers to the subId to remove from list of priorities.
      *
      * @param {Function}        [options.sub]         Required for subscribing to an event. Where coding happens.
      *
-     * @param {String}          [options.tag]         Optional for subscribing. Use for identifying and removing
+     * @param {String}          [options.subId]       Optional for subscribing. Use for identifying and removing
      *                                                from priority list. Randomly generated if not defined when
      *                                                subscribing (options.sub or options is a function).
      *
-     * @param {int}         [options.priority]        0-11 where 0 is the lowest (last to publish) priority and
+     * @param {int}             [options.priority]    0-11 where 0 is the lowest (last to publish) priority and
      *                                                11 is the highest (first to publish). Every subscription will
      *                                                append to the list of priorities, except for options.timing=1.
      *                                                If subscribing and options.priority is not set, 0 be used.
      *                                                This option is ignored by options.timing=1.
      *
-     * @param {int}         [options.timing]          When the priority should happen.
+     * @param {int}             [options.timing]      When the priority should happen.
      *                                                0 = before default timing. There can be many of these timings.
      *                                                1 = default publish event. There is only one default timing.
      *                                                2 = after default event. There can be many of these timings.
