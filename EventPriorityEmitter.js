@@ -272,10 +272,7 @@
 
             if (config.timing === 'def') {
 
-                if (typeof timing === 'string') {
-                    this.removeSubId(timing);
-                }
-
+                this.removeSubId(timing);
                 this.timings[config.timing] = config.subId;
 
             } else {
@@ -299,12 +296,16 @@
          * @returns {Boolean}
          */
         'removeSubId': function (subId, untrack) {
-            var subIdData = this.subIds[subId],
+            var subIdData,
                 indexOf,
                 priority,
                 timing;
 
-            if (subIdData && typeof subIdData === 'object') {
+            if (
+                typeof subId === 'string' && 
+                (subIdData = this.subIds[subId]) && 
+                typeof subIdData === 'object'
+            ) {
 
                 timing = this.timings[subIdData.timing];
 
@@ -331,9 +332,14 @@
             return false;
         },
         'publishToSubscriber': function (subId, data) {
-            var subIdData = this.subIds[subId];
-
-            if (subIdData && typeof subIdData.sub === 'function') {
+            var subIdData;
+            data = data || this.oldArgs;
+            
+            if (
+                typeof subId === 'string' &&
+                (subIdData  = this.subIds[subId]) && 
+                typeof subIdData.sub === 'function'
+            ) {
                 //pass context if defined?
                 subIdData.sub.call(undefined, data);
             }
@@ -359,7 +365,7 @@
 
                     //Default should be the only one that matches this
                     _debugLog(this.eventName + 'Publishing to default');
-                    this.publishToSubscriber(priorities, this.oldArgs);
+                    this.publishToSubscriber(priorities, args);
 
                 } else if (priorities && priorities.length) {
 
@@ -369,7 +375,7 @@
 
                             for(sidx = 0, subId = priority[sidx]; sidx < priority.length; subId = priority[++sidx]) {
                                 _debugLog(this.eventName + 'Publishing subId ' + subId + ' TIMING ' + timing + ' PRIORITY ' + pidx);
-                                this.publishToSubscriber(subId, this.oldArgs);
+                                this.publishToSubscriber(subId, args);
                             }
                         }
                     }
@@ -445,7 +451,7 @@
 
                 if(config.rePub && event.hasPub) {
                     _debugLog(this.epeName + eventName + ' event was published. Re-publish subId ' + config.subId);
-                    config.sub.call(undefined, event.oldArgs);
+                    event.publishToSubscriber(config.subId);
                 }
 
                 return true;
