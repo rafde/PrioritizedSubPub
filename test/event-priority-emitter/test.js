@@ -98,7 +98,6 @@ describe('EventPriorityEmitter', function () {
         testEPB(
             testName,
             {
-                'subId': testName,
                 'sub': function () {
                     testData[testName] = num;
                 },

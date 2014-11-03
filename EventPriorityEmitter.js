@@ -41,64 +41,52 @@
  *
  * @returns {undefined|Function}                  "new EventPriorityEmitter" returns a function with a new
  *                                                instance of EventPriorityEmitter for private use.
- *                                                Otherwise, it will publish, subscribe or un-subscribe to
+ *                                                Otherwise, it will publish, subscribe, or un-subscribe to
  *                                                global EventPriorityEmitter and return undefined.
  *
  * @example
  *
  * //subscribe using default config
- * EventPriorityEmitter(
- *      'myGlobalEvent',
- *      function (args) {
- *          console && console.log && console.log(args);
- *      }
- * );
+ * 
+ * EventPriorityEmitter('myGlobalEvent', function (args) { console && console.log && console.log(args); });
  *
  * //subscribe default timing
- * EventPriorityEmitter(
- *      'myGlobalEvent',
- *      {
- *          "timing" : "def",
- *          "sub" : function (args) {
- *              if (args && args.stuff) {
- *                  //do something by default
- *              }
- *          }
+ * 
+ * EventPriorityEmitter('myGlobalEvent', {
+ *
+ *  "timing" : "def",
+ *
+ *  "sub" : function (args) {
+ *      if (args && args.stuff) {
+ *          //do something by default
  *      }
- * );
+ *  }
+ * });
  *
  * //subscribe post timing
- * EventPriorityEmitter(
- *      'myGlobalEvent',
- *      {
- *          "subId": "sub id 2",
- *          "timing" : "post",
- *          "priority": 11,
- *          "sub" : function (args) {
- *              if (args && args.somethingelse) {
- *                  //do something after default and before other priorities
- *              }
- *          }
+ * 
+ * EventPriorityEmitter('myGlobalEvent', {
+ *
+ *  "subId": "sub id 2",
+ *
+ *  "timing" : "post",
+ *
+ *  "priority": 11,
+ *
+ *  "sub" : function (args) {
+ *      if (args && args.somethingelse) {
+ *          //do something after default and before other priorities
  *      }
- * );
+ *  }
+ * });
  *
  * //publish object with data inside the you want subscribers to consume
- * EventPriorityEmitter(
- *      'myGlobalEvent',
- *      {
- *          "pub": {
- *              "stuff" : "data"
- *          }
- *      }
- * );
+ * 
+ * EventPriorityEmitter('myGlobalEvent', {"pub": {"stuff" : "data"}});
  *
  * //un-subscribe a subId
- * EventPriorityEmitter(
- *      'myGlobalEvent',
- *      {
- *          "unSub": "sub id 2"
- *      }
- * );
+ * 
+ * EventPriorityEmitter('myGlobalEvent', {"unSub": "sub id 2"});
  *  
  */
 (function (root, factory) {
@@ -275,7 +263,7 @@
          * @param {Object} config
          */
         'replaceSubId' : function (config) {
-            var timing,
+            var timing = this.timings[config.timing],
                 priority;
 
             this.removeSubId(config.subId, false);
@@ -284,11 +272,14 @@
 
             if (config.timing === 'def') {
 
-                this.timings[config.timing] = config.sub;
+                if (typeof timing === 'string') {
+                    this.removeSubId(timing);
+                }
+
+                this.timings[config.timing] = config.subId;
 
             } else {
-
-                timing = this.timings[config.timing];
+                
                 priority = timing[config.priority];
 
                 //list of priorities is only set to an array until it needs it.
@@ -317,7 +308,8 @@
 
                 timing = this.timings[subIdData.timing];
 
-                if (typeof timing === 'function') {
+                if (typeof timing === 'string') {
+
                     _debugLog(this.eventName + 'removing default timing');
                     this.timings[subIdData.timing] = null;
 
@@ -338,6 +330,14 @@
 
             return false;
         },
+        'publishToSubscriber': function (subId, data) {
+            var subIdData = this.subIds[subId];
+
+            if (subIdData && typeof subIdData.sub === 'function') {
+                //pass context if defined?
+                subIdData.sub.call(undefined, data);
+            }
+        },
         'publish': function (args) {
             var tidx = 0,
                 timing,
@@ -355,11 +355,11 @@
             for (timing = PRIORITY_TYPE[tidx]; tidx < PRIORITY_TYPE.length; timing = PRIORITY_TYPE[++tidx]) {
                 priorities = this.timings[timing];
 
-                if (timing === 'def' && typeof priorities === 'function') {
+                if (timing === 'def' && typeof priorities === 'string') {
 
                     //Default should be the only one that matches this
-                    priorities.call(undefined, this.oldArgs);
                     _debugLog(this.eventName + 'Publishing to default');
+                    this.publishToSubscriber(priorities, this.oldArgs);
 
                 } else if (priorities && priorities.length) {
 
@@ -368,13 +368,8 @@
                         if (priority && priority.length) {
 
                             for(sidx = 0, subId = priority[sidx]; sidx < priority.length; subId = priority[++sidx]) {
-                                subIdData = this.subIds[subId];
-
-                                if(subIdData && typeof subIdData.sub === 'function') {
-                                    _debugLog(this.eventName + 'Publishing subId ' + subId + ' TIMING ' + timing + ' PRIORITY ' + pidx);
-                                    //pass context if defined?
-                                    subIdData.sub.call(undefined, this.oldArgs);
-                                }
+                                _debugLog(this.eventName + 'Publishing subId ' + subId + ' TIMING ' + timing + ' PRIORITY ' + pidx);
+                                this.publishToSubscriber(subId, this.oldArgs);
                             }
                         }
                     }
