@@ -28,15 +28,16 @@
  * @param {int}             [options.priority]    0-11 where 0 is the lowest (last subscriber to get published data) priority 
  *                                                and 11 is the highest (first subscriber to get published data). 
  *                                                Every subscription will append to the list of priorities, 
- *                                                except for options.timing=1 since there can be only one default.
- *                                                If subscribing and options.priority is not set, 0 is be used. 
- *                                                This is ignored when options.timing=1.
+ *                                                except for options.timing="def" since there can be only one default.
+ *                                                If subscribing and options.priority is not set, 6 is used.
+ *                                                This is ignored when options.timing="def".
  *
  * @param {String}          [options.timing]      When the priority should happen.
  *                                                pre = before default timing. There can be many of these timings.
  *                                                def = default publish event. There is only one default timing.
  *                                                post = after default event. There can be many of these timings.
- *                                                If subscribing and options.timing is not set, 2 will be used.
+ *                                                If subscribing and options.timing is not set,
+ *                                                options.timing="pre" will be used.
  *
  *
  * @returns {undefined|Function}                  "new EventPriorityEmitter" returns a function with a new
@@ -45,49 +46,69 @@
  *                                                global EventPriorityEmitter and return undefined.
  *
  * @example
- *
  * //subscribe using default config
  * 
- * EventPriorityEmitter('myGlobalEvent', function (args) { console && console.log && console.log(args); });
+ * EventPriorityEmitter(
+ *    'myGlobalEvent',
+ *    function (args) {
+ *      console && console.log && console.log(args);
+ *    }
+ * );
  *
+ * @example
  * //subscribe default timing
  * 
- * EventPriorityEmitter('myGlobalEvent', {
+ * EventPriorityEmitter(
+ *    'myGlobalEvent',
+ *    {
+ *       "timing" : "def",
+ *       "sub" : function (args) {
+ *          if (args && args.stuff) {
+ *             //do something by default
+ *          }
+ *       }
+ *    }
+ * );
  *
- *  "timing" : "def",
- *
- *  "sub" : function (args) {
- *      if (args && args.stuff) {
- *          //do something by default
- *      }
- *  }
- * });
- *
+ * @example
  * //subscribe post timing
  * 
- * EventPriorityEmitter('myGlobalEvent', {
+ * EventPriorityEmitter(
+ *    'myGlobalEvent',
+ *    {
+ *       "subId": "sub id 2",
+ *       "timing" : "post",
+ *       "priority": 11,
+ *       "sub" : function (args) {
+ *          if (args && args.somethingelse) {
+ *              //do something after default and before other priorities
+ *          }
+ *       }
+ *    }
+ * );
  *
- *  "subId": "sub id 2",
- *
- *  "timing" : "post",
- *
- *  "priority": 11,
- *
- *  "sub" : function (args) {
- *      if (args && args.somethingelse) {
- *          //do something after default and before other priorities
- *      }
- *  }
- * });
- *
+ * @example
  * //publish object with data inside the you want subscribers to consume
- * 
- * EventPriorityEmitter('myGlobalEvent', {"pub": {"stuff" : "data"}});
  *
+ * EventPriorityEmitter(
+ *    'myGlobalEvent',
+ *    {
+ *      "pub" : {
+ *          "stuff" : "data"
+ *      }
+ *    }
+ * );
+ *
+ * @example
  * //un-subscribe a subId
  * 
- * EventPriorityEmitter('myGlobalEvent', {"unSub": "sub id 2"});
- *  
+ * EventPriorityEmitter(
+ *    'myGlobalEvent',
+ *    {
+ *       "unSub": "sub id 2"
+ *    }
+ * );
+ *
  */
 (function (root, factory) {
     var ns = 'EventPriorityEmitter';
@@ -435,12 +456,13 @@
 
                 temp = parseInt(config.priority, 10);
                 if (!_isValidRange(temp, PRIORITY_LIMIT)) {
-                    config.priority = 0;
+                    config.priority = Math.round(PRIORITY_LIMIT / 2);
                 } else {
                     config.priority = temp;
                 }
 
                 temp = fnIndexOf.call(PRIORITY_TYPE, config.timing);
+
                 if(temp < 0) {
                     config.timing = PRIORITY_TYPE[0]; //default config timing is pre
                 } else {
@@ -528,11 +550,11 @@
         } else if (typeof privateEPE === 'string') {
             //return new wrapper
             return (function () {
-                var EPE = new EventPriorityEmitter(privateEPE);
+                var _EPE = new EventPriorityEmitter(privateEPE);
 
                 return function() {
-                    EPE.exec.apply(
-                        EPE,
+                    _EPE.exec.apply(
+                        _EPE,
                         fnArgsToArr.call(arguments)
                     );
                 };
