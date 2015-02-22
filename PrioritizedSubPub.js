@@ -1,8 +1,8 @@
 /**
- * Public interface for using EventPriorityEmitter.
+ * Public interface for using PrioritizedSubPub.
  *
- * @method EventPriorityEmitter
- * 
+ * @method PrioritizedSubPub
+ *
  * @param {String}          [eventName=]          Name to give to the event.
  *
  * @param {Object|Function} [options]             An object for options or function to subscribe. Certain options
@@ -12,22 +12,30 @@
  *                                                and options, options.unSub, or options.pub are undefined,
  *                                                then options.pub gets set to {} and the event publishes.
  *
- * @param {Boolean}         [options.rePub]       If set to true and subscribing to an event and the event had
- *                                                published in the past, then re-publish for this subscriber
- *                                                using the previous options.pub
- *
  * @param {String}          [options.unSub]       Required for un-subscribing from priority list.
  *                                                The string refers to the subId to remove from list of priorities.
+ *                                                Subscriptions can be un-subscribed by other means.
  *
  * @param {Function}        [options.sub]         Required for subscribing to an event.
+ *                                                If this function returns true, it will bypass options.unSubCount
+ *                                                decrement.
+ *                                                If this function returns false, it will un-subscribe itself.
+ *
+ * @param {int}             [options.unSubCount]  Optional. Will publish to however many times set. When it reaches the
+ *                                                limit, it will un-subscribe itself. It decrement can be bypassed if
+ *                                                options.sub callback returns true.
+ *
+ * @param {Boolean}         [options.rePub]       If set to true and subscribing to an event and the event had
+ *                                                published in the past, then re-publish for this subscriber
+ *                                                using the previously publish data from options.pub
  *
  * @param {String}          [options.subId]       Optional for subscribing. Use for identifying and removing
  *                                                from priority list. Randomly generated if not defined when
  *                                                subscribing (options.sub or options is a function).
  *
- * @param {int}             [options.priority]    0-11 where 0 is the lowest (last subscriber to get published data) priority 
- *                                                and 11 is the highest (first subscriber to get published data). 
- *                                                Every subscription will append to the list of priorities, 
+ * @param {int}             [options.priority]    0-11 where 0 is the lowest (last subscriber to get published data) priority
+ *                                                and 11 is the highest (first subscriber to get published data).
+ *                                                Every subscription will append to the list of priorities,
  *                                                except for options.timing="def" since there can be only one default.
  *                                                If subscribing and options.priority is not set, 6 is used.
  *                                                This is ignored when options.timing="def".
@@ -40,15 +48,15 @@
  *                                                options.timing="pre" will be used.
  *
  *
- * @returns {undefined|Function}                  "new EventPriorityEmitter" returns a function with a new
- *                                                instance of EventPriorityEmitter for private use.
+ * @returns {undefined|Function}                  "new PrioritizedSubPub" returns a function with a new
+ *                                                instance of PrioritizedSubPub for private use.
  *                                                Otherwise, it will publish, subscribe, or un-subscribe to
- *                                                global EventPriorityEmitter and return undefined.
+ *                                                global PrioritizedSubPub and return undefined.
  *
  * @example
  * //subscribe using default config
- * 
- * EventPriorityEmitter(
+ *
+ * PrioritizedSubPub(
  *    'myGlobalEvent',
  *    function (args) {
  *      console && console.log && console.log(args);
@@ -57,8 +65,8 @@
  *
  * @example
  * //subscribe default timing
- * 
- * EventPriorityEmitter(
+ *
+ * PrioritizedSubPub(
  *    'myGlobalEvent',
  *    {
  *       "timing" : "def",
@@ -72,8 +80,8 @@
  *
  * @example
  * //subscribe post timing
- * 
- * EventPriorityEmitter(
+ *
+ * PrioritizedSubPub(
  *    'myGlobalEvent',
  *    {
  *       "subId": "sub id 2",
@@ -90,7 +98,7 @@
  * @example
  * //publish object with data inside the you want subscribers to consume
  *
- * EventPriorityEmitter(
+ * PrioritizedSubPub(
  *    'myGlobalEvent',
  *    {
  *      "pub" : {
@@ -101,17 +109,62 @@
  *
  * @example
  * //un-subscribe a subId
- * 
- * EventPriorityEmitter(
+ *
+ * PrioritizedSubPub(
  *    'myGlobalEvent',
  *    {
  *       "unSub": "sub id 2"
  *    }
  * );
  *
+ * @example
+ * //un-subscribe through subscriber callback
+ *
+ * PrioritizedSubPub(
+ *    'myGlobalEvent',
+ *    {
+ *       "sub" : function (args) {
+ *          return false; // I am un-subscribing myself.
+ *       }
+ *    }
+ * );
+ *
+ * @example
+ * //un-subscribe after 3 subscriptions.
+ *
+ * PrioritizedSubPub(
+ *    'myGlobalEvent',
+ *    {
+ *       "unSubCount": 3
+ *       "sub" : function (args) {
+ *          // I am done after 3 subscriptions
+ *       }
+ *    }
+ * );
+ *
+ * @example
+ * //un-subscribe after 3 subscriptions, unless pub data tells me not to.
+ *
+ * PrioritizedSubPub(
+ *    'myGlobalEvent',
+ *    {
+ *       "unSubCount": 3
+ *       "sub" : function (args) {
+ *          //doing stuff.
+ *
+ *          //the conditions that trigger the unSubCount down can come from any where you want.
+ *          if (args.skipThisUnSubCount) {
+ *              return true; //don't decrement the count
+ *          }
+ *       }
+ *    }
+ * );
+ *
  */
 (function (root, factory) {
-    var ns = 'EventPriorityEmitter';
+	'use strict';
+	/* global define, module */
+    var ns = 'PrioritizedPubSub';
     //boilerplate node and browser defining.
     if (typeof define === 'function' && define.amd) {
         define(ns, factory(root));
@@ -122,7 +175,7 @@
     }
 
 } (this, function (root) {
-    'use strict';
+	'use strict';
     /* global console */
     var PRIORITY_TYPE = ['pre', 'def', 'post'],
         PRIORITY_LIMIT = 11,
@@ -144,8 +197,8 @@
 
             return -1;
         },
-        //host global usage for EPE
-        _globalEventPriorities;
+        //host global usage for PSP
+        _globalPSP;
 
     /**
      * @private
@@ -156,7 +209,7 @@
         var args;
         if (console && console.log) {
             args = fnArgsToArr.call(arguments);
-            args.unshift('EPE: ');
+            args.unshift('PSP: ');
             console.log(args);
         }
     }
@@ -166,7 +219,7 @@
      * @private
      * @param validate
      * @param max
-     * @param min
+     * @param [min=0]
      * @returns {boolean}
      */
     function _isValidRange(validate, max, min) {
@@ -180,10 +233,10 @@
      * @private
      * @class Subscriptions
      * @param eventName
-     * @param epbName
+     * @param pspName
      * @constructor
      */
-    function Subscriptions(eventName, epbName){
+    function Subscriptions(eventName, pspName){
         var i = 0,
             timings = {},
             type;
@@ -273,7 +326,7 @@
          */
         this.timings = timings;
         //for console.log
-        this.eventName = epbName + eventName + '-> ';
+        this.eventName = pspName + eventName + '-> ';
     }
 
     Subscriptions.prototype = {
@@ -313,7 +366,7 @@
          * If untrack is true or undefined, then delete from list of subIds  
          * @private
          * @param {String} subId
-         * @param {undefined|Boolean} untrack
+         * @param {undefined|Boolean} [untrack=undefined]
          * @returns {Boolean}
          */
         'removeSubId': function (subId, untrack) {
@@ -353,7 +406,10 @@
             return false;
         },
         'publishToSubscriber': function (subId, data) {
-            var subIdData;
+            var subIdData,
+	            isCount,
+                result;
+
             data = data || this.oldArgs;
             
             if (
@@ -361,9 +417,33 @@
                 (subIdData  = this.subIds[subId]) && 
                 typeof subIdData.sub === 'function'
             ) {
-                //pass context if defined?
-                subIdData.sub.call(undefined, data);
+	            isCount = typeof subIdData.unPubCount === 'number';
+
+	            if (
+		            !isCount
+                    || (
+			            isCount
+			            && subIdData.unPubCount > 0
+		            )
+	            ) {
+		            result = subIdData.sub.call(subIdData.context, data);
+	            }
+
+                if (
+                    result === false
+                    || (
+                        result !== true // do not decrement if sub returns true.
+                        && isCount
+                        && --subIdData.unPubCount <= 0
+                    )
+                ) {
+                    _debugLog(this.eventName + 'Subscriber subId ' + subId + ' removed itself. Result:', result);
+                    this.removeSubId(subId);
+                }
+
+                return result;
             }
+            return null;
         },
         'publish': function (args) {
             var tidx = 0,
@@ -373,7 +453,7 @@
                 priority,
                 sidx,
                 subId,
-                subIdData;
+                result;
 
             //Clone?
             this.oldArgs = args;
@@ -393,10 +473,19 @@
                     for (pidx = priorities.length - 1, priority = priorities[pidx]; pidx >= 0; priority = priorities[--pidx]) {
 
                         if (priority && priority.length) {
-
-                            for(sidx = 0, subId = priority[sidx]; sidx < priority.length; subId = priority[++sidx]) {
+                            sidx = 0;
+                            while((subId = priority[sidx])) {
                                 _debugLog(this.eventName + 'Publishing subId ' + subId + ' TIMING ' + timing + ' PRIORITY ' + pidx);
-                                this.publishToSubscriber(subId, args);
+                                
+                                switch ((result = this.publishToSubscriber(subId, args))) {
+	                                case false:
+                                    //if false returned, then the subscription was removed
+                                    // and the current index is still relevant.
+                                    break;
+                                    default:
+                                        sidx++;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -407,12 +496,12 @@
 
     /**
      * @private
-     * @class EventPriorityEmitter
+     * @class PrioritizedPubSub
      * @constructor
-     * @param {String} EPEName name to use to identify what EventPriorityEmitter is firing for console log.
+     * @param {String} PSPName name to use to identify what PrioritizedPubSub is firing for console log.
      */
-    function EventPriorityEmitter(EPEName) {
-        this.epeName = '';
+    function PrioritizedPubSub(PSPName) {
+        this.pspName = '';
         /*
             keeps track of all event names that have subscriptions.
             Example data structure
@@ -423,17 +512,17 @@
          */
         this.events = {};
 
-        if (typeof EPEName === 'string') {
-            this.epeName += EPEName;
+        if (typeof PSPName === 'string') {
+            this.pspName += PSPName;
         } else {
-            this.epeName += 'EPE' + Math.ceil(Math.random() * 10000000);
+            this.pspName += 'PPS' + Math.ceil(Math.random() * 10000000);
         }
 
-        this.epeName += '::';
+        this.pspName += '::';
     }
 
-    EventPriorityEmitter.prototype = {
-        'constructor' : EventPriorityEmitter,
+    PrioritizedPubSub.prototype = {
+        'constructor' : PrioritizedPubSub,
         'pub': function (eventName, args) {
             var event = this.getEvent(eventName);
 
@@ -472,21 +561,21 @@
                 event.replaceSubId(config);
 
                 if(config.rePub && event.hasPub) {
-                    _debugLog(this.epeName + eventName + ' event was published. Re-publish subId ' + config.subId);
+                    _debugLog(this.pspName + eventName + ' event was published. Re-publish subId ' + config.subId);
                     event.publishToSubscriber(config.subId);
                 }
 
                 return true;
             }
 
-            _debugLog(this.epeName + eventName + ' was not given a legitimate config');
+            _debugLog(this.pspName + eventName + ' was not given a legitimate config');
 
             return null;
         },
         'unSub': function (eventName, subId) {
             var event = this.getEvent(eventName);
             if (event) {
-                _debugLog(this.epeName + 'un-subcribing subId ' + subId + ' from EVENT ' + eventName);
+                _debugLog(this.pspName + 'un-subscribing subId ' + subId + ' from EVENT ' + eventName);
                 event.removeSubId(subId);
             }
         },
@@ -500,8 +589,8 @@
             var event = this.events[eventName];
 
             if (!event) {
-                _debugLog(this.epeName + 'Creating new subscription for EVENT ' + eventName);
-                this.events[eventName] = event = new Subscriptions(eventName, this.epeName);
+                _debugLog(this.pspName + 'Creating new subscription for EVENT ' + eventName);
+                this.events[eventName] = event = new Subscriptions(eventName, this.pspName);
             }
 
             return event;
@@ -528,7 +617,7 @@
                 } else if (typeof options.sub === 'function') { //subscribe to eventName
 
                     if(this.sub(eventName, options) === null) {
-                        _debugLog(this.epeName + 'Subscription definition was invalid and was not registered');
+                        _debugLog(this.pspName + 'Subscription definition was invalid and was not registered');
                     }
 
                 } else { //publish to eventName
@@ -539,27 +628,29 @@
         }
     };
 
-    _globalEventPriorities = new EventPriorityEmitter('GLOBAL');
-
-    return function (privateEPE) {
+    _globalPSP = new PrioritizedPubSub('GLOBAL');
+	//TODO: function based pub, sub, un-sub. Ability return a subscription without going through the wrapper.
+    function PSPWrapper(privatePSP) {
         if (typeof this === 'undefined' || this === window) {
-            _globalEventPriorities.exec.apply(
-                _globalEventPriorities,
+            _globalPSP.exec.apply(
+                _globalPSP,
                 fnArgsToArr.call(arguments)
             );
-        } else if (typeof privateEPE === 'string') {
+        } else if (typeof privatePSP === 'string') {
             //return new wrapper
             return (function () {
-                var _EPE = new EventPriorityEmitter(privateEPE);
+                var _PSP = new PrioritizedPubSub(privatePSP);
 
                 return function() {
-                    _EPE.exec.apply(
-                        _EPE,
+                    _PSP.exec.apply(
+                        _PSP,
                         fnArgsToArr.call(arguments)
                     );
                 };
             }());
         }
-    };
+    }
+
+    return PSPWrapper;
 }));
 

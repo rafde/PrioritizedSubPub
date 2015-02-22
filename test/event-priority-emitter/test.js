@@ -1,37 +1,37 @@
 /* global describe*/
-describe('EventPriorityEmitter', function () {
+describe('PrioritizedPubSub', function () {
     'use strict';
-    /* global EventPriorityEmitter, it, EPB */
-    var testEPB = new EventPriorityEmitter('TEST'),
+    /* global PrioritizedPubSub, it, PSP, expect */
+    var testPSP = new PrioritizedPubSub('TEST'),
         testNumber = -1;
 
-    it('subscribe then publish', function () {
+    it('should subscribe then publish', function () {
         var num = ++testNumber,
             testData = {},
             testName = 'test' + num;
 
         testData[testName] = 0;
 
-        testEPB(
+        testPSP(
             testName,
             function (args) {
                 testData[testName] = args.data;
             }
         );
 
-        testEPB(testName, {'data': num});
+        testPSP(testName, {'data': num});
 
         expect(testData[testName]).toBe(num);
     });
 
-    it('subscribe, publish, un-subscribe, publish', function () {
+    it('should subscribe, publish, un-subscribe, publish', function () {
         var num = ++testNumber,
             testData = {},
             testName = 'test' + num;
 
         testData[testName] = 0;
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName,
@@ -41,16 +41,16 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(testName, {data: num});
+        testPSP(testName, {data: num});
 
-        testEPB(testName, {'unSub': testName});
+        testPSP(testName, {'unSub': testName});
 
-        testEPB(testName, {data: num+1});
+        testPSP(testName, {data: num+1});
 
         expect(testData[testName]).toBe(num);
     });
 
-    it('subscribe and repub, then publish', function () {
+    it('should subscribe and re-pub, then publish', function () {
         var num = ++testNumber,
             testData = {},
             testName = 'test' + num;
@@ -59,7 +59,7 @@ describe('EventPriorityEmitter', function () {
 
         num--;
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName,
@@ -70,17 +70,17 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(testName, {data: ++num});
+        testPSP(testName, {data: ++num});
 
         expect(testData[testName]).toBe(num);
     });
 
-    it('sub to def, pub, sub to def, pub', function () {
+    it('should sub to def, pub, sub to def, pub', function () {
         var num = ++testNumber,
             testData = {},
             testName = 'test' + num;
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName,
@@ -91,11 +91,11 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(testName);
+        testPSP(testName);
 
         expect(testData[testName]).toBe(1);
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'sub': function () {
@@ -105,17 +105,17 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(testName);
+        testPSP(testName);
 
         expect(testData[testName]).toBe(num);
     });
 
-    it('sub to def, sub post p5, pub, replace sub post p5 w/ pre p11, pub', function () {
+    it('should sub to def, sub post p5, pub, replace sub post p5 w/ pre p11, pub', function () {
         var num = ++testNumber,
             testData = {},
             testName = 'test' + num;
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName,
@@ -126,7 +126,7 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + '-1',
@@ -137,11 +137,11 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(testName);
+        testPSP(testName);
 
         expect(testData[testName]).toBe(2);
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + '-1',
@@ -152,17 +152,17 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(testName);
+        testPSP(testName);
 
         expect(testData[testName]).toBe(num);
     });
 
-    it('sub 4 times, remove first and last sub then publish', function () {
+    it('should sub 4 times, remove first and last sub then publish', function () {
         var num = ++testNumber,
             testData = {},
             testName = 'test' + num;
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName,
@@ -173,7 +173,7 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + '-1',
@@ -184,7 +184,7 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + '-2',
@@ -195,7 +195,7 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + '-3',
@@ -206,21 +206,21 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'unSub': testName
             }
         );
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'unSub': testName + '-4'
             }
         );
 
-        testEPB(testName);
+        testPSP(testName);
 
         expect(testData[testName]).toBe(3);
     });
@@ -234,7 +234,7 @@ describe('EventPriorityEmitter', function () {
 
         num = num - 2;
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName,
@@ -244,15 +244,15 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(testName, {data: ++num});
+        testPSP(testName, {data: ++num});
 
         expect(testData[testName]).toBe(num);
 
-        testEPB(testName, {data: ++num});
+        testPSP(testName, {data: ++num});
 
         expect(testData[testName]).toBe(num);
 
-        testEPB(
+        testPSP(
             testName + '-1',
             {
                 'subId': testName + '-1',
@@ -271,9 +271,9 @@ describe('EventPriorityEmitter', function () {
             testData = {},
             testName = 'test' + num;
 
-        testEPB(testName, {data: num});
+        testPSP(testName, {data: num});
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName,
@@ -294,7 +294,7 @@ describe('EventPriorityEmitter', function () {
 
         testData[testName] = ++testNumber;
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + ' pre w/ p5',
@@ -306,7 +306,7 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + ' pre w/ p2',
@@ -318,7 +318,7 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + ' pre w/ p8',
@@ -330,56 +330,7 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(testName);
-
-        expect(testData[testName]).toBe(2);
-    });
-
-    //@TODO FINISH
-    it('Sub pre p5 1, sub pre p5 2, sub pre p5 3, sub pre p5 4, sub pre p5 5, pub', function () {
-        var num = ++testNumber,
-            testData = {},
-            testName = 'test' + num;
-
-        testData[testName] = num;
-
-        testEPB(
-            testName,
-            {
-                'subId': testName + ' pre w/ p5 1',
-                'sub': function () {
-                    testData[testName] = 5;
-                },
-                'timing': 'pre',
-                'priority': 5
-            }
-        );
-
-        testEPB(
-            testName,
-            {
-                'subId': testName + ' pre w/ p2',
-                'sub': function () {
-                    testData[testName] = 2;
-                },
-                'timing': 'pre',
-                'priority': 2
-            }
-        );
-
-        testEPB(
-            testName,
-            {
-                'subId': testName + ' pre w/ p8',
-                'sub': function () {
-                    testData[testName] = 8;
-                },
-                'timing': 'pre',
-                'priority': 8
-            }
-        );
-
-        testEPB(testName);
+        testPSP(testName);
 
         expect(testData[testName]).toBe(2);
     });
@@ -392,7 +343,7 @@ describe('EventPriorityEmitter', function () {
 
         testData[testName] = num;
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + ' post w/ p3',
@@ -405,7 +356,7 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + ' pre w/ p8',
@@ -418,7 +369,7 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + ' default',
@@ -431,7 +382,7 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + ' pre w/ p11',
@@ -444,7 +395,7 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + ' post w/ p0',
@@ -457,7 +408,7 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(testName);
+        testPSP(testName);
 
         expect(testData[testName]).toBe('post 0');
 
@@ -470,9 +421,9 @@ describe('EventPriorityEmitter', function () {
             testData = {},
             testName = 'test' + num;
 
-        testEPB(testName, {'pub': {'data':num}});
+        testPSP(testName, {'pub': {'data':num}});
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + ' def',
@@ -488,7 +439,7 @@ describe('EventPriorityEmitter', function () {
 
         expect(testData[testName]).toBe(num);
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + ' pre w/ p8',
@@ -501,12 +452,12 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(testName, {'data': 54});
+        testPSP(testName, {'data': 54});
 
         expect(subCount).toBe(3);
         expect(testData[testName]).toBe(54);
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + ' pre w/ p8',
@@ -519,19 +470,19 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(testName, {'data':99});
+        testPSP(testName, {'data':99});
 
         expect(testData[testName]).toBe(99);
         expect(subCount).toBe(5);
 
-        testEPB(testName, {'unSub': testName + ' def'});
+        testPSP(testName, {'unSub': testName + ' def'});
 
-        testEPB(testName);
+        testPSP(testName);
 
         expect(subCount).toBe(6);
         expect(testData[testName]).toBe('replaced pre 8');
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + ' post w/ p1',
@@ -549,7 +500,7 @@ describe('EventPriorityEmitter', function () {
 
         expect(subCount).toBe(7);
 
-        testEPB(
+        testPSP(
             testName,
             {
                 'subId': testName + ' post w/ p1 again',
@@ -562,9 +513,165 @@ describe('EventPriorityEmitter', function () {
             }
         );
 
-        testEPB(testName);
+        testPSP(testName);
 
         expect(testData[testName]).toBe('post 1-again');
         expect(subCount).toBe(10);
+    });
+
+    it('should subscribe and self remove, subscribe, subscribe and self remove, then publish', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num;
+
+        testData[testName] = 0;
+
+        testPSP(
+            testName,
+            function (args) {
+                testData[testName] += 2;
+                return false;
+            }
+        );
+
+        testPSP(
+            testName,
+            function (args) {
+                testData[testName] = args.data;
+            }
+        );
+
+        testPSP(
+            testName,
+            function (args) {
+                testData[testName] += 3;
+                return false;
+            }
+        );
+
+        testPSP(testName, {'data': num});
+        expect(testData[testName]).toBe(num + 3);
+
+        testPSP(testName, {'data': num});
+        expect(testData[testName]).toBe(num);
+    });
+
+    it('should subscribe and self remove, subscribe, subscribe and self remove, then publish', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num;
+
+        testData[testName] = 0;
+
+        testPSP(
+            testName,
+            function (args) {
+                testData[testName] += 2;
+                return false;
+            }
+        );
+
+        testPSP(
+            testName,
+            function (args) {
+                testData[testName] = args.data;
+            }
+        );
+
+        testPSP(
+            testName,
+            function (args) {
+                testData[testName] += 3;
+                return false;
+            }
+        );
+
+        testPSP(testName, {'data': num});
+        expect(testData[testName]).toBe(num + 3);
+
+        testPSP(testName, {'data': num});
+        expect(testData[testName]).toBe(num);
+    });
+
+    it('should subscribe and unpub after 3 publish', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num;
+
+        testData[testName] = 0;
+
+        testPSP(
+            testName,
+            {
+                'unPubCount': 3,
+                'sub': function (args) {
+                    testData[testName]++;
+                }
+            }
+        );
+
+        testPSP(testName);
+        testPSP(testName);
+        testPSP(testName);
+        testPSP(testName);
+
+        expect(testData[testName]).toBe(3);
+    });
+
+    it('should subscribe, decrement if data is odd, and unpub itself', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num;
+
+        testData[testName] = 0;
+
+        testPSP(
+            testName,
+            {
+                'unPubCount': 3,
+                'sub': function (args) {
+                    testData[testName]++;
+
+                    if (testData[testName] % 2 === 0) {
+                        return true;
+                    }
+                }
+            }
+        );
+
+        testPSP(testName);
+        testPSP(testName);
+        testPSP(testName);
+        testPSP(testName);
+        testPSP(testName);
+        testPSP(testName);
+
+        expect(testData[testName]).toBe(5);
+    });
+
+    it('should not publish of unPubCount is 0', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num;
+
+        testData[testName] = 0;
+
+        testPSP(
+            testName,
+            {
+                'unPubCount': 0,
+                'sub': function (args) {
+                    testData[testName]++;
+
+                    if (testData[testName] % 2 === 0) {
+                        return true;
+                    }
+                }
+            }
+        );
+
+        testPSP(testName);
+
+        expect(testData[testName]).toBe(0);
     });
 });
