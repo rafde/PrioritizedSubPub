@@ -1,8 +1,8 @@
 /* global describe*/
-describe('PrioritizedPubSub', function () {
+describe('PrioritizedSubPub', function () {
     'use strict';
-    /* global PrioritizedPubSub, it, PSP, expect */
-    var testPSP = new PrioritizedPubSub('TEST'),
+    /* global PrioritizedSubPub, it, PSP, expect */
+    var testPSP = new PrioritizedSubPub('TEST'),
         testNumber = -1;
 
     it('should subscribe then publish', function () {
@@ -23,6 +23,45 @@ describe('PrioritizedPubSub', function () {
 
         expect(testData[testName]).toBe(num);
     });
+
+    it('should use proxy to subscribe then publish', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num;
+
+        testData[testName] = 0;
+
+        testPSP.sub(
+            testName,
+            function (args) {
+                testData[testName] = args.data;
+            }
+        );
+
+        testPSP.pub(testName, {'data': num});
+
+        expect(testData[testName]).toBe(num);
+    });
+
+    it('should use event proxy to subscribe then publish', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num,
+            eventProxy = testPSP.getEventProxy(testName);
+
+        testData[testName] = 0;
+
+        eventProxy.sub(
+            function (args) {
+                testData[testName] = args.data;
+            }
+        );
+
+        eventProxy.pub({'data': num});
+
+        expect(testData[testName]).toBe(num);
+    });
+
 
     it('should subscribe, publish, un-subscribe, publish', function () {
         var num = ++testNumber,
@@ -50,6 +89,94 @@ describe('PrioritizedPubSub', function () {
         expect(testData[testName]).toBe(num);
     });
 
+
+    it('should subscribe subscribe to global and test without interfering with each other.', function () {
+        var num = ++testNumber,
+            testData = {},
+            testDateGlobal = {},
+            testName = 'test' + num;
+
+        testData[testName] = 0;
+
+        testPSP(
+            testName,
+            {
+                'subId': testName,
+                'sub': function (args) {
+                    testData[testName] = args.data;
+                }
+            }
+        );
+
+        PrioritizedSubPub.sub(
+            testName,
+            {
+                'subId': testName,
+                'sub': function (args) {
+                    testData[testName]++;
+                    return false;
+                }
+            }
+        );
+
+        testPSP(testName, {data: 4});
+        PrioritizedSubPub.pub(testName);
+        PrioritizedSubPub.pub(testName);
+        expect(testData[testName]).toBe(5);
+    });
+
+    it('should use proxy subscribe, publish, un-subscribe, publish', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num;
+
+        testData[testName] = 0;
+
+        testPSP.sub(
+            testName,
+            {
+                'subId': testName,
+                'sub': function (args) {
+                    testData[testName] = args.data;
+                }
+            }
+        );
+
+        testPSP.pub(testName, {data: num, pub: 'test'});
+
+        testPSP.unSub(testName, testName);
+
+        testPSP.pub(testName, {data: num+1});
+
+        expect(testData[testName]).toBe(num);
+    });
+
+    it('should use event proxy subscribe, publish, un-subscribe, publish', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num,
+            eventProxy = testPSP.getEventProxy(testName);
+
+        testData[testName] = 0;
+
+        eventProxy.sub(
+            {
+                'subId': testName,
+                'sub': function (args) {
+                    testData[testName] = args.data;
+                }
+            }
+        );
+
+        eventProxy.pub({data: num, pub: 'test'});
+
+        eventProxy.unSub(testName);
+
+        eventProxy.pub({data: num+1});
+
+        expect(testData[testName]).toBe(num);
+    });
+
     it('should subscribe and re-pub, then publish', function () {
         var num = ++testNumber,
             testData = {},
@@ -66,7 +193,7 @@ describe('PrioritizedPubSub', function () {
                 'sub': function (args) {
                     testData[testName] = args.data;
                 },
-                rePub: true
+                'rePub': true
             }
         );
 
@@ -662,10 +789,6 @@ describe('PrioritizedPubSub', function () {
                 'unPubCount': 0,
                 'sub': function (args) {
                     testData[testName]++;
-
-                    if (testData[testName] % 2 === 0) {
-                        return true;
-                    }
                 }
             }
         );
@@ -674,4 +797,29 @@ describe('PrioritizedPubSub', function () {
 
         expect(testData[testName]).toBe(0);
     });
+
+    it('should not publish of unPubCount is 1 but rePub is true', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num;
+
+        testData[testName] = 0;
+
+        testPSP(
+            testName,
+            {
+                'unPubCount': 1,
+                'sub': function (args) {
+                    testData[testName]++;
+                },
+                'rePub': true
+            }
+        );
+
+        testPSP(testName);
+        testPSP(testName);
+
+        expect(testData[testName]).toBe(1);
+    });
+
 });

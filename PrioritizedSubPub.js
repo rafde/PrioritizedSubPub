@@ -47,9 +47,10 @@
  *                                                If subscribing and options.timing is not set,
  *                                                options.timing="pre" will be used.
  *
+ * @param {*}               [options.context]     Specify the context of "this" for options.sub
  *
- * @returns {undefined|Function}                  "new PrioritizedSubPub" returns a function with a new
- *                                                instance of PrioritizedSubPub for private use.
+ * @returns {undefined|new PSPProxy}              "new PrioritizedSubPub" returns a function with a new
+ *                                                instance of PSPProxy for private use.
  *                                                Otherwise, it will publish, subscribe, or un-subscribe to
  *                                                global PrioritizedSubPub and return undefined.
  *
@@ -162,9 +163,9 @@
  *
  */
 (function (root, factory) {
-	'use strict';
-	/* global define, module */
-    var ns = 'PrioritizedPubSub';
+    'use strict';
+    /* global define, module */
+    var ns = 'PrioritizedSubPub';
     //boilerplate node and browser defining.
     if (typeof define === 'function' && define.amd) {
         define(ns, factory(root));
@@ -175,7 +176,7 @@
     }
 
 } (this, function (root) {
-	'use strict';
+    'use strict';
     /* global console */
     var PRIORITY_TYPE = ['pre', 'def', 'post'],
         PRIORITY_LIMIT = 11,
@@ -407,7 +408,7 @@
         },
         'publishToSubscriber': function (subId, data) {
             var subIdData,
-	            isCount,
+                isCount,
                 result;
 
             data = data || this.oldArgs;
@@ -417,17 +418,17 @@
                 (subIdData  = this.subIds[subId]) && 
                 typeof subIdData.sub === 'function'
             ) {
-	            isCount = typeof subIdData.unPubCount === 'number';
+                isCount = typeof subIdData.unPubCount === 'number';
 
-	            if (
-		            !isCount
+                if (
+                    !isCount
                     || (
-			            isCount
-			            && subIdData.unPubCount > 0
-		            )
-	            ) {
-		            result = subIdData.sub.call(subIdData.context, data);
-	            }
+                        isCount
+                        && subIdData.unPubCount > 0
+                    )
+                ) {
+                    result = subIdData.sub.call(subIdData.context, data);
+                }
 
                 if (
                     result === false
@@ -478,7 +479,7 @@
                                 _debugLog(this.eventName + 'Publishing subId ' + subId + ' TIMING ' + timing + ' PRIORITY ' + pidx);
                                 
                                 switch ((result = this.publishToSubscriber(subId, args))) {
-	                                case false:
+                                    case false:
                                     //if false returned, then the subscription was removed
                                     // and the current index is still relevant.
                                     break;
@@ -496,11 +497,11 @@
 
     /**
      * @private
-     * @class PrioritizedPubSub
+     * @class PrioritizedSubPub
      * @constructor
-     * @param {String} PSPName name to use to identify what PrioritizedPubSub is firing for console log.
+     * @param {String} PSPName name to use to identify what PrioritizedSubPub is firing for console log.
      */
-    function PrioritizedPubSub(PSPName) {
+    function PrioritizedSubPub(PSPName) {
         this.pspName = '';
         /*
             keeps track of all event names that have subscriptions.
@@ -521,8 +522,12 @@
         this.pspName += '::';
     }
 
-    PrioritizedPubSub.prototype = {
-        'constructor' : PrioritizedPubSub,
+    PrioritizedSubPub.prototype = {
+        'constructor' : PrioritizedSubPub,
+        /**
+         * @param {String} eventName
+         * @param {Object} args
+         */
         'pub': function (eventName, args) {
             var event = this.getEvent(eventName);
 
@@ -530,11 +535,25 @@
                 event.publish(args);
             }
         },
+        /**
+         *
+         * @param {String} eventName
+         * @param {Object|Function} config
+         * @returns {Boolean|null}
+         */
         'sub': function (eventName, config) {
             var event,
+                configType = typeof config,
+                isFunction = configType === 'function',
                 temp;
 
-            if (config && typeof config === 'object') {
+            if (config && (configType === 'object' || isFunction)) {
+
+                if (isFunction) {
+                    config = {
+                        'sub' : config
+                    };
+                }
 
                 event = this.getEvent(eventName);
 
@@ -572,6 +591,11 @@
 
             return null;
         },
+        /**
+         *
+         * @param {String} eventName
+         * @param {String} subId
+         */
         'unSub': function (eventName, subId) {
             var event = this.getEvent(eventName);
             if (event) {
@@ -601,55 +625,90 @@
          * @param  {Object|Function} options
          */
         'exec': function(eventName, options) {
+            var optionsType,
+                isObj;
+
             options = options || {};
 
-            if (typeof eventName === 'string') {
-
+            if (options && typeof eventName === 'string') {
+                isObj = (optionsType = typeof options) === 'object';
                 //subscribe using default config
-                if (typeof options === 'function') {
-                    options = {
-                        'sub': options
-                    };
-                }
-
-                if (typeof options.unSub === 'string') {
-                    this.unSub(eventName, options.unSub);
-                } else if (typeof options.sub === 'function') { //subscribe to eventName
-
+                if (
+                    optionsType === 'function'
+                    || (
+                        isObj
+                        && typeof options.sub === 'function'
+                    )
+                ) {
                     if(this.sub(eventName, options) === null) {
                         _debugLog(this.pspName + 'Subscription definition was invalid and was not registered');
                     }
-
-                } else { //publish to eventName
-                    options = options.pub || options;
-                    this.pub(eventName, options);
+                } else if (isObj) {
+                    if (typeof options.unSub === 'string') {
+                        this.unSub(eventName, options.unSub);
+                    } else { //publish to eventName
+                        options = options.pub || options;
+                        this.pub(eventName, options);
+                    }
                 }
             }
         }
     };
 
-    _globalPSP = new PrioritizedPubSub('GLOBAL');
-	//TODO: function based pub, sub, un-sub. Ability return a subscription without going through the wrapper.
+    function PSPProxy(PSP) {
+        var _PSP = new PrioritizedSubPub(PSP),
+             pubFn = function () {
+                 _PSP.exec.apply(
+                     _PSP,
+                     fnArgsToArr.call(arguments)
+                 );
+            };
+
+        pubFn.pub = function () { _PSP.pub.apply(_PSP, fnArgsToArr.call(arguments)); return this;};
+
+        pubFn.sub = function () { _PSP.sub.apply(_PSP, fnArgsToArr.call(arguments)); return this;};
+
+        pubFn.unSub = function () { _PSP.unSub.apply(_PSP, fnArgsToArr.call(arguments)); return this;};
+
+        pubFn.getEventProxy = function (eventName) {
+            return {
+                'pub': function (args) {
+                    pubFn.pub(eventName, args);
+                    return this;
+                },
+                'sub': function (options) {
+                    pubFn.sub(eventName, options);
+                    return this;
+                },
+                'unSub': function (subId) {
+                    pubFn.unSub(eventName, subId);
+                    return this;
+                }
+            };
+        };
+
+        return pubFn;
+    }
+
+    _globalPSP = new PSPProxy('GLOBAL');
+
     function PSPWrapper(privatePSP) {
         if (typeof this === 'undefined' || this === window) {
-            _globalPSP.exec.apply(
+
+            _globalPSP.apply(
                 _globalPSP,
                 fnArgsToArr.call(arguments)
             );
         } else if (typeof privatePSP === 'string') {
             //return new wrapper
-            return (function () {
-                var _PSP = new PrioritizedPubSub(privatePSP);
-
-                return function() {
-                    _PSP.exec.apply(
-                        _PSP,
-                        fnArgsToArr.call(arguments)
-                    );
-                };
-            }());
+            return new PSPProxy(privatePSP);
         }
     }
+
+    PSPWrapper.sub = _globalPSP.sub;
+    PSPWrapper.pub = _globalPSP.pub;
+    PSPWrapper.unSub = _globalPSP.unSub;
+    PSPWrapper.getEventProxy = _globalPSP.getEventProxy;
 
     return PSPWrapper;
 }));
