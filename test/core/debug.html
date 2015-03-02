@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en">
+        <meta charset="UTF-8">
+        <title>Prioritized Sub Pub debug</title>
+    </head>
+    <body>
+        <script src="../../PrioritizedSubPub.js"></script>
+        <script>
+            window.testPSP = (function (win) {
+                var testPSP = PrioritizedSubPub.getEventProxy('testPSP')
+                    ;
+
+                testPSP.sub({
+                    'sub': function (argsObj, pubOpts) {
+
+                        console.log(
+                            'args: '
+                          , argsObj
+                          , 'before dec'
+                          , ++this.unSkippedCounter
+                        );
+
+                        if (argsObj.skip) {
+                            console.log('skipping dec');
+                            return pubOpts.CONST.SKIP_DEC;
+                        }
+
+                        console.log('not skipping ', ++this.skippedCounter);
+                    }
+                  , 'unPubCount' : 3
+                  , 'context' : {
+                        unSkippedCounter : 0
+                      , skippedCounter : 0
+                    }
+                });
+
+                return testPSP;
+            }(window));
+        </script>
+    </body>
+</html>
