@@ -1,6 +1,8 @@
 /**
  * Public interface for using PrioritizedSubPub.
  *
+ * @module PrioritizedSubPub
+ *
  * @method PrioritizedSubPub
  *
  * @param {String}          [eventName=]          Name to give to the event.
@@ -19,11 +21,11 @@
  * @param {Function}        [options.sub]         Required for subscribing to an event.
  *                                                If this function returns true, it will bypass options.unSubCount
  *                                                decrement.
- *                                                If this function returns false, it will un-subscribe itself.
+ *                                                If this function returns "unSub", it will un-subscribe itself.
  *
  * @param {int}             [options.unSubCount]  Optional. Will publish to however many times set. When it reaches the
- *                                                limit, it will un-subscribe itself. It decrement can be bypassed if
- *                                                options.sub callback returns true.
+ *                                                limit, it will un-subscribe itself. Decrementing can be bypassed if
+ *                                                options.sub callback returns "skip_dec".
  *
  * @param {Boolean}         [options.rePub]       If set to true and subscribing to an event and the event had
  *                                                published in the past, then re-publish for this subscriber
@@ -47,7 +49,7 @@
  *                                                If subscribing and options.timing is not set,
  *                                                options.timing="pre" will be used.
  *
- * @param {*}               [options.context]     Specify the context of "this" for options.sub
+ * @param {*}               [options.context]     Specify the context of `this` for options.sub
  *
  * @returns {undefined|new PSPProxy}              "new PrioritizedSubPub" returns a function with a new
  *                                                instance of PSPProxy for private use.
@@ -58,7 +60,7 @@
  * //subscribe using default config
  *
  * PrioritizedSubPub(
- *    'myGlobalEvent',
+ *    "myGlobalEvent",
  *    function (args) {
  *      console && console.log && console.log(args);
  *    }
@@ -68,7 +70,7 @@
  * //subscribe default timing
  *
  * PrioritizedSubPub(
- *    'myGlobalEvent',
+ *    "myGlobalEvent",
  *    {
  *       "timing" : "def",
  *       "sub" : function (args) {
@@ -83,7 +85,7 @@
  * //subscribe post timing
  *
  * PrioritizedSubPub(
- *    'myGlobalEvent',
+ *    "myGlobalEvent",
  *    {
  *       "subId": "sub id 2",
  *       "timing" : "post",
@@ -100,7 +102,7 @@
  * //publish object with data inside the you want subscribers to consume
  *
  * PrioritizedSubPub(
- *    'myGlobalEvent',
+ *    "myGlobalEvent",
  *    {
  *      "pub" : {
  *          "stuff" : "data"
@@ -112,7 +114,7 @@
  * //un-subscribe a subId
  *
  * PrioritizedSubPub(
- *    'myGlobalEvent',
+ *    "myGlobalEvent",
  *    {
  *       "unSub": "sub id 2"
  *    }
@@ -122,10 +124,10 @@
  * //un-subscribe through subscriber callback
  *
  * PrioritizedSubPub(
- *    'myGlobalEvent',
+ *    "myGlobalEvent",
  *    {
  *       "sub" : function (args) {
- *          return false; // I am un-subscribing myself.
+ *          return "unSub"; // I am un-subscribing myself.
  *       }
  *    }
  * );
@@ -134,7 +136,7 @@
  * //un-subscribe after 3 subscriptions.
  *
  * PrioritizedSubPub(
- *    'myGlobalEvent',
+ *    "myGlobalEvent",
  *    {
  *       "unSubCount": 3
  *       "sub" : function (args) {
@@ -147,7 +149,7 @@
  * //un-subscribe after 3 subscriptions, unless pub data tells me not to.
  *
  * PrioritizedSubPub(
- *    'myGlobalEvent',
+ *    "myGlobalEvent",
  *    {
  *       "unSubCount": 3
  *       "sub" : function (args) {
@@ -155,7 +157,7 @@
  *
  *          //the conditions that trigger the unSubCount down can come from any where you want.
  *          if (args.skipThisUnSubCount) {
- *              return true; //don't decrement the count
+ *              return "skip_dec"; //don't decrement the count
  *          }
  *       }
  *    }
@@ -169,22 +171,34 @@
     //boilerplate node and browser defining.
     if (typeof define === 'function' && define.amd) {
         define(ns, factory(root));
-    } else if (typeof exports === 'object') {
+    } else if (
+           typeof module === 'object'
+        && typeof module.exports === 'object'
+    ) {
         module.exports = factory(root);
     } else {
         root[ns] = factory(root);
     }
 
-} (this, function (root) {
+} (this, function () {
     'use strict';
-    /* global console */
-    var PRIORITY_TYPE = ['pre', 'def', 'post'],
-        PRIORITY_LIMIT = 11,
-        fnArgsToArr = Array.prototype.slice,
-        fnIndexOf = Array.prototype.indexOf || function (el) {
+
+    var PRIORITY_TYPE = ['pre', 'def', 'post']
+      , PRIORITY_LIMIT = 11
+      , UNSUB = 'unsub'
+      , SKIP_DEC = 'skip_dec'
+      , isUndef = function (value) { return typeof value === 'undefined'; }
+      , isObj = function (value) { return value && typeof value === 'object'; }
+      , isStr = function (value) { return typeof value === 'string'; }
+      , isFn = function (value) { return typeof value === 'function'; }
+      , isNum = function (value) { return typeof value === 'number' && !isNaN(value); }
+      , fnArgsToArr = function (args) {
+            return Array.prototype.slice.call(args);
+        }
+      , fnIndexOf = Array.prototype.indexOf || function (el) {
             //supporting older browsers
-            var len,
-                i;
+            var len
+              , i;
 
             if (this && (len = this.length)){
                 i = 0;
@@ -197,9 +211,10 @@
             }
 
             return -1;
-        },
+        }
         //host global usage for PSP
-        _globalPSP;
+      , _globalPSP
+      ;
 
     /**
      * @private
@@ -207,9 +222,10 @@
      * @todo: think of good way to toggle logging.
      */
      function _debugLog() {
+        /* global console */
         var args;
         if (console && console.log) {
-            args = fnArgsToArr.call(arguments);
+            args = fnArgsToArr(arguments);
             args.unshift('PSP: ');
             console.log(args);
         }
@@ -226,7 +242,7 @@
     function _isValidRange(validate, max, min) {
         min = min || 0;
 
-        return !isNaN(validate) && validate >= min && validate <= max;
+        return isNum(validate) && validate >= min && validate <= max;
     }
 
     /**
@@ -249,6 +265,7 @@
                 timings[type] = null;
                 continue;
             }
+            //TODO: use an wrapped array for unrestricted priority numbers
             timings[type] = [];
         }
         /*
@@ -355,7 +372,7 @@
                 priority = timing[config.priority];
 
                 //list of priorities is only set to an array until it needs it.
-                if (typeof priority === 'undefined') {
+                if (isUndef(priority)) {
                     priority = timing[config.priority] = [];
                 }
                 //all new subId are added to the end of the priority list
@@ -377,33 +394,37 @@
                 timing;
 
             if (
-                typeof subId === 'string' && 
-                (subIdData = this.subIds[subId]) && 
-                typeof subIdData === 'object'
+                   isStr(subId)
+                && (subIdData = this.subIds[subId])
+                && isObj(subIdData)
             ) {
 
                 timing = this.timings[subIdData.timing];
 
-                if (typeof timing === 'string') {
+                if (isStr(timing)) {
 
                     _debugLog(this.eventName + 'removing default timing');
                     this.timings[subIdData.timing] = null;
 
                 } else if (
-                    timing &&
-                    timing.length &&
-                    (priority = timing[subIdData.priority]) &&
-                    priority.length &&
-                    (indexOf = fnIndexOf.call(priority, subId)) >= 0
+                       timing
+                    && timing.length
+                    && (priority = timing[subIdData.priority])
+                    && priority.length
+                    && (indexOf = fnIndexOf.call(priority, subId)) >= 0
                 ){
                     priority.splice(indexOf, 1);
                 }
 
-                if (typeof untrack === 'undefined' || untrack === true) {
+                if (isUndef(untrack) || untrack === true) {
                     delete this.subIds[subId];
+                    _debugLog(this.eventName + ' is completely erasing ' + subId);
                 }
+
+                return true;
             }
 
+            _debugLog(this.eventName + ' had nothing to remove for ' + subId);
             return false;
         },
         'publishToSubscriber': function (subId, data) {
@@ -414,35 +435,47 @@
             data = data || this.oldArgs;
             
             if (
-                typeof subId === 'string' &&
-                (subIdData  = this.subIds[subId]) && 
-                typeof subIdData.sub === 'function'
+                   isStr(subId)
+                && (subIdData  = this.subIds[subId])
+                && isFn(subIdData.sub)
             ) {
-                isCount = typeof subIdData.unPubCount === 'number';
+                isCount = isNum(subIdData.unPubCount);
 
                 if (
-                    !isCount
+                       !isCount
                     || (
-                        isCount
+                           isCount
                         && subIdData.unPubCount > 0
                     )
                 ) {
-                    result = subIdData.sub.call(subIdData.context, data);
+                    result = subIdData.sub.apply(
+                        subIdData.context
+                      , [
+                            data
+                          , {
+                                'CONST' : {
+                                    'SKIP_DEC' : SKIP_DEC
+                                  , 'UNSUB' : UNSUB
+                                }
+                            }
+                        ]
+                    );
                 }
 
                 if (
-                    result === false
+                    result === UNSUB
                     || (
-                        result !== true // do not decrement if sub returns true.
+                           result !== SKIP_DEC
                         && isCount
                         && --subIdData.unPubCount <= 0
                     )
                 ) {
                     _debugLog(this.eventName + 'Subscriber subId ' + subId + ' removed itself. Result:', result);
                     this.removeSubId(subId);
+                    return false;
                 }
 
-                return result;
+                return true;
             }
             return null;
         },
@@ -463,7 +496,7 @@
             for (timing = PRIORITY_TYPE[tidx]; tidx < PRIORITY_TYPE.length; timing = PRIORITY_TYPE[++tidx]) {
                 priorities = this.timings[timing];
 
-                if (timing === 'def' && typeof priorities === 'string') {
+                if (timing === 'def' && isStr(priorities)) {
 
                     //Default should be the only one that matches this
                     _debugLog(this.eventName + 'Publishing to default');
@@ -476,7 +509,11 @@
                         if (priority && priority.length) {
                             sidx = 0;
                             while((subId = priority[sidx])) {
-                                _debugLog(this.eventName + 'Publishing subId ' + subId + ' TIMING ' + timing + ' PRIORITY ' + pidx);
+
+                                _debugLog(
+                                    this.eventName + 'Publishing subId ' + subId + ' TIMING ' + timing
+                                  + ' PRIORITY ' + pidx
+                                );
                                 
                                 switch ((result = this.publishToSubscriber(subId, args))) {
                                     case false:
@@ -506,17 +543,17 @@
         /*
             keeps track of all event names that have subscriptions.
             Example data structure
-            this.events = {
-                "myGlobalEvent" : Subscription,
-                "myOtherEvent": Subscription
+            this.subList = {
+                "myGlobalEvent" : Subscriptions,
+                "myOtherEvent": Subscriptions
             };
          */
-        this.events = {};
+        this.subList = {};
 
-        if (typeof PSPName === 'string') {
+        if (isStr(PSPName)) {
             this.pspName += PSPName;
         } else {
-            this.pspName += 'PPS' + Math.ceil(Math.random() * 10000000);
+            this.pspName += 'PSP' + Math.ceil(Math.random() * 10000000);
         }
 
         this.pspName += '::';
@@ -526,10 +563,12 @@
         'constructor' : PrioritizedSubPub,
         /**
          * @param {String} eventName
-         * @param {Object} args
+         * @param {Object} [args]
          */
         'pub': function (eventName, args) {
-            var event = this.getEvent(eventName);
+            args = isObj(args) ? args : {};
+
+            var event = this.getSub(eventName);
 
             if (event) {
                 event.publish(args);
@@ -544,10 +583,13 @@
         'sub': function (eventName, config) {
             var event,
                 configType = typeof config,
-                isFunction = configType === 'function',
+                isFunction = (configType === 'function'),
                 temp;
 
-            if (config && (configType === 'object' || isFunction)) {
+            if (
+                   config
+                && (configType === 'object' || isFunction)
+            ) {
 
                 if (isFunction) {
                     config = {
@@ -555,27 +597,29 @@
                     };
                 }
 
-                event = this.getEvent(eventName);
+                event = this.getSub(eventName);
 
                 //create random id if subId is defined for config tracking.
-                if (typeof config.subId !== 'string') {                    
+                if (!isStr(config.subId)) {
                     config.subId = 'pr-' + Math.ceil(Math.random() * 10000000);
                 }
 
                 temp = parseInt(config.priority, 10);
                 if (!_isValidRange(temp, PRIORITY_LIMIT)) {
-                    config.priority = Math.round(PRIORITY_LIMIT / 2);
-                } else {
-                    config.priority = temp;
+                    temp = Math.round(PRIORITY_LIMIT / 2);
                 }
+
+                config.priority = temp;
 
                 temp = fnIndexOf.call(PRIORITY_TYPE, config.timing);
 
                 if(temp < 0) {
-                    config.timing = PRIORITY_TYPE[0]; //default config timing is pre
+                    temp = PRIORITY_TYPE[0]; //default config timing is pre
                 } else {
-                    config.timing = PRIORITY_TYPE[temp];
+                    temp = PRIORITY_TYPE[temp];
                 }
+
+                config.timing = temp;
 
                 event.replaceSubId(config);
 
@@ -597,30 +641,32 @@
          * @param {String} subId
          */
         'unSub': function (eventName, subId) {
-            var event = this.getEvent(eventName);
+            var event = this.getSub(eventName);
+
             if (event) {
-                _debugLog(this.pspName + 'un-subscribing subId ' + subId + ' from EVENT ' + eventName);
+                _debugLog(this.pspName + 'un-subscribing subId ' + subId + ' from ' + eventName);
                 event.removeSubId(subId);
             }
         },
         /**
          * Return or create new Subscription.
-         * @param  {String} eventName
-         * @return {Subscription}
+         * @param  {String} subName
+         * @return {Subscriptions}
          * @private
          */
-        'getEvent': function (eventName) {
-            var event = this.events[eventName];
+        'getSub': function (subName) {
+            var event = this.subList[subName];
 
             if (!event) {
-                _debugLog(this.pspName + 'Creating new subscription for EVENT ' + eventName);
-                this.events[eventName] = event = new Subscriptions(eventName, this.pspName);
+                _debugLog(this.pspName + 'Creating new subscription: ' + subName);
+                this.subList[subName] = event = new Subscriptions(subName, this.pspName);
             }
 
             return event;
         },
         /**
          * Determines what type of action to do based on what the options are.
+         * @method exec
          * @param  {String} eventName
          * @param  {Object|Function} options
          */
@@ -630,21 +676,21 @@
 
             options = options || {};
 
-            if (options && typeof eventName === 'string') {
+            if (options && isStr(eventName)) {
                 isObj = (optionsType = typeof options) === 'object';
                 //subscribe using default config
                 if (
                     optionsType === 'function'
                     || (
-                        isObj
-                        && typeof options.sub === 'function'
+                           isObj
+                        && isFn(options.sub)
                     )
                 ) {
                     if(this.sub(eventName, options) === null) {
                         _debugLog(this.pspName + 'Subscription definition was invalid and was not registered');
                     }
                 } else if (isObj) {
-                    if (typeof options.unSub === 'string') {
+                    if (isStr(options.unSub)) {
                         this.unSub(eventName, options.unSub);
                     } else { //publish to eventName
                         options = options.pub || options;
@@ -655,53 +701,60 @@
         }
     };
 
-    function PSPProxy(PSP) {
-        var _PSP = new PrioritizedSubPub(PSP),
-             pubFn = function () {
-                 _PSP.exec.apply(
-                     _PSP,
-                     fnArgsToArr.call(arguments)
-                 );
-            };
+    function PSPProxy(pspNamespace) {
+        var _PSP = new PrioritizedSubPub(pspNamespace);
 
-        pubFn.pub = function () { _PSP.pub.apply(_PSP, fnArgsToArr.call(arguments)); return this;};
+        function publicPSP() {
+            _PSP.exec.apply(
+                _PSP
+              , fnArgsToArr(arguments)
+            );
+        }
 
-        pubFn.sub = function () { _PSP.sub.apply(_PSP, fnArgsToArr.call(arguments)); return this;};
+        publicPSP.pub = function () { _PSP.pub.apply(_PSP, fnArgsToArr(arguments)); return this; };
 
-        pubFn.unSub = function () { _PSP.unSub.apply(_PSP, fnArgsToArr.call(arguments)); return this;};
+        publicPSP.sub = function () { _PSP.sub.apply(_PSP, fnArgsToArr(arguments)); return this; };
 
-        pubFn.getEventProxy = function (eventName) {
+        publicPSP.unSub = function () { _PSP.unSub.apply(_PSP, fnArgsToArr(arguments)); return this; };
+
+        publicPSP.getEventProxy = function (pubName) {
             return {
                 'pub': function (args) {
-                    pubFn.pub(eventName, args);
+                    publicPSP.pub(pubName, args);
                     return this;
                 },
                 'sub': function (options) {
-                    pubFn.sub(eventName, options);
+                    publicPSP.sub(pubName, options);
                     return this;
                 },
                 'unSub': function (subId) {
-                    pubFn.unSub(eventName, subId);
+                    publicPSP.unSub(pubName, subId);
                     return this;
                 }
             };
         };
 
-        return pubFn;
+        return publicPSP;
     }
 
     _globalPSP = new PSPProxy('GLOBAL');
 
-    function PSPWrapper(privatePSP) {
-        if (typeof this === 'undefined' || this === window) {
+    /**
+     *
+     * @param   {String}                subNameSpace
+     * @returns {undefined|PSPProxy}
+     */
+    function PSPWrapper(subNameSpace) {
+        /* global window */
+        if (isUndef(this) || this === window) {
 
             _globalPSP.apply(
                 _globalPSP,
-                fnArgsToArr.call(arguments)
+                fnArgsToArr(arguments)
             );
-        } else if (typeof privatePSP === 'string') {
+        } else if (isStr(subNameSpace)) {
             //return new wrapper
-            return new PSPProxy(privatePSP);
+            return new PSPProxy(subNameSpace);
         }
     }
 
