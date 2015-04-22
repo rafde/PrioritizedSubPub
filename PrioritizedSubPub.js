@@ -206,12 +206,17 @@
      * @desc private console output. Currently logs by default.
      * @todo: think of good way to toggle logging.
      */
-     function _debugLog() {
+    function _debugLog() {
         var args;
-        if (console && console.log) {
+        if (window.console && console.log) {
             args = fnArgsToArr.call(arguments);
             args.unshift('PSP: ');
-            console.log(args);
+            // only call console[].apply for browsers that support it, fallback to console.log
+            try {
+                console['log'].apply(console, args);
+            } catch (e) {
+                console.log(args);
+            }
         }
     }
 
