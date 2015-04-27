@@ -1,4 +1,81 @@
-/**
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Source: /vagrant/var/www/repo/EventPriorityEmitter/PrioritizedSubPub.js</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/jaguar.css">
+    
+    
+    <script>
+    var config = {"monospaceLinks":false,"cleverLinks":false,"applicationName":"PrioritizedSubPub","linenums":true,"default":{"outputSourceFiles":true}};
+    </script>
+    
+
+    
+</head>
+<body>
+<div id="wrap" class="clearfix">
+    
+<div class="navigation">
+    <h3 class="applicationName"><a href="index.html">PrioritizedSubPub</a></h3>
+
+    <div class="search">
+        <input id="search" type="text" class="form-control input-sm" placeholder="Search Documentations">
+    </div>
+    <ul class="list">
+    
+        <li class="item" data-name="PrioritizedPubSub">
+            <span class="title">
+                <a href="PrioritizedPubSub.html">PrioritizedPubSub</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="PrioritizedPubSub.getEventProxy"><a href="PrioritizedPubSub.html#.getEventProxy">getEventProxy</a></li>
+            
+                <li data-name="PrioritizedPubSub.getEventPubCallback"><a href="PrioritizedPubSub.html#.getEventPubCallback">getEventPubCallback</a></li>
+            
+                <li data-name="PrioritizedPubSub.pub"><a href="PrioritizedPubSub.html#.pub">pub</a></li>
+            
+                <li data-name="PrioritizedPubSub.sub"><a href="PrioritizedPubSub.html#.sub">sub</a></li>
+            
+                <li data-name="PrioritizedPubSub.unSub"><a href="PrioritizedPubSub.html#.unSub">unSub</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+    </ul>
+</div>
+    <div class="main">
+        <h1 class="page-title" data-filename="-_vagrant_var_www_repo_EventPriorityEmitter_PrioritizedSubPub.js.html">Source: /vagrant/var/www/repo/EventPriorityEmitter/PrioritizedSubPub.js</h1>
+        
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * PrioritizedPubSub
  * @class PrioritizedPubSub
  * @param   {String}                                        subNameSpace
@@ -74,11 +151,11 @@
     /* global define, module */
     var ns = 'PrioritizedSubPub';
     //boilerplate node and browser defining.
-    if (typeof define === 'function' && define.amd) {
+    if (typeof define === 'function' &amp;&amp; define.amd) {
         define(ns, factory(root));
     } else if (
            typeof module === 'object'
-        && typeof module.exports === 'object'
+        &amp;&amp; typeof module.exports === 'object'
     ) {
         module.exports = factory(root);
     } else {
@@ -99,7 +176,7 @@
 
     /* jshint ignore: start */
     if ( (_globalPSP = typeof _)
-      && _globalPSP === 'function'
+      &amp;&amp; _globalPSP === 'function'
     ) {
         util = _;
     }
@@ -109,7 +186,7 @@
         //Mini lodash/underscore
         util = {
             isUndefined: function (value) { return typeof value === 'undefined'; }
-          , isObject: function (value) { return value && typeof value === 'object'; }
+          , isObject: function (value) { return value &amp;&amp; typeof value === 'object'; }
           , isString: function (value) { return typeof value === 'string'; }
           , isFunction: function (value) { return typeof value === 'function'; }
           , toArray: function (args) { return Array.prototype.slice.call(args);}
@@ -121,10 +198,10 @@
                 var len
                   , i;
 
-                if (arr && (len = arr.length)){
+                if (arr &amp;&amp; (len = arr.length)){
                     i = 0;
                     //possible todo: faster and more efficient loop
-                    for (; i < len; i++) {
+                    for (; i &lt; len; i++) {
                         if (arr[i] === val) {
                             return i;
                         }
@@ -138,7 +215,7 @@
 
     //I want to make sure this is a number
     if (!util.isFunction(util.isRealNumber)) {
-        util.isRealNumber = function (value) { return typeof value === 'number' && !isNaN(value); };
+        util.isRealNumber = function (value) { return typeof value === 'number' &amp;&amp; !isNaN(value); };
     }
 
     /**
@@ -150,7 +227,7 @@
         /* global console */
         var args,
             log;
-        if (PrioritizedPubSub.isLogged && console && (log = console.log)) {
+        if (PrioritizedPubSub.isLogged &amp;&amp; console &amp;&amp; (log = console.log)) {
             args = util.toArray(arguments);
             args.unshift('PSP: ');
             try{
@@ -172,7 +249,7 @@
     function _isValidRange(validate, max, min) {
         min = min || 0;
 
-        return util.isRealNumber(validate) && validate >= min && validate <= max;
+        return util.isRealNumber(validate) &amp;&amp; validate >= min &amp;&amp; validate &lt;= max;
     }
 
     /**
@@ -188,7 +265,7 @@
             timings = {},
             type;
 
-        for(type = PRIORITY_TYPE[i]; i < PRIORITY_TYPE.length; type = PRIORITY_TYPE[++i]){
+        for(type = PRIORITY_TYPE[i]; i &lt; PRIORITY_TYPE.length; type = PRIORITY_TYPE[++i]){
 
             //there can be only one default and it's set to null until def is set to a function.
             if (type === 'def') {
@@ -325,8 +402,8 @@
 
             if (
                    util.isString(subId)
-                && (subIdData = this.subIds[subId])
-                && util.isObject(subIdData)
+                &amp;&amp; (subIdData = this.subIds[subId])
+                &amp;&amp; util.isObject(subIdData)
             ) {
 
                 timing = this.timings[subIdData.timing];
@@ -338,10 +415,10 @@
 
                 } else if (
                        timing
-                    && timing.length
-                    && (priority = timing[subIdData.priority])
-                    && priority.length
-                    && (indexOf = util.indexOf(priority, subId)) >= 0
+                    &amp;&amp; timing.length
+                    &amp;&amp; (priority = timing[subIdData.priority])
+                    &amp;&amp; priority.length
+                    &amp;&amp; (indexOf = util.indexOf(priority, subId)) >= 0
                 ){
                     priority.splice(indexOf, 1);
                 }
@@ -366,8 +443,8 @@
             
             if (
                    util.isString(subId)
-                && (subIdData  = this.subIds[subId])
-                && util.isFunction(subIdData.sub)
+                &amp;&amp; (subIdData  = this.subIds[subId])
+                &amp;&amp; util.isFunction(subIdData.sub)
             ) {
                 isCount = util.isRealNumber(subIdData.unPubCount);
 
@@ -375,7 +452,7 @@
                        !isCount
                     || (
                            isCount
-                        && subIdData.unPubCount > 0
+                        &amp;&amp; subIdData.unPubCount > 0
                     )
                 ) {
                     try {
@@ -400,8 +477,8 @@
                     result === UNSUB
                     || (
                            result !== SKIP_DEC
-                        && isCount
-                        && --subIdData.unPubCount <= 0
+                        &amp;&amp; isCount
+                        &amp;&amp; --subIdData.unPubCount &lt;= 0
                     )
                 ) {
                     _debugLog(this.eventName + 'Subscriber subId ' + subId + ' removed itself. Result:', result);
@@ -427,20 +504,20 @@
             this.oldArgs = args;
             this.hasPub = true;
 
-            for (timing = PRIORITY_TYPE[tidx]; tidx < PRIORITY_TYPE.length; timing = PRIORITY_TYPE[++tidx]) {
+            for (timing = PRIORITY_TYPE[tidx]; tidx &lt; PRIORITY_TYPE.length; timing = PRIORITY_TYPE[++tidx]) {
                 priorities = this.timings[timing];
 
-                if (timing === 'def' && util.isString(priorities)) {
+                if (timing === 'def' &amp;&amp; util.isString(priorities)) {
 
                     //Default should be the only one that matches this
                     _debugLog(this.eventName + 'Publishing to default');
                     this.publishToSubscriber(priorities, args);
 
-                } else if (priorities && priorities.length) {
+                } else if (priorities &amp;&amp; priorities.length) {
 
                     for (pidx = priorities.length - 1, priority = priorities[pidx]; pidx >= 0; priority = priorities[--pidx]) {
 
-                        if (priority && priority.length) {
+                        if (priority &amp;&amp; priority.length) {
                             sidx = 0;
                             while((subId = priority[sidx])) {
 
@@ -524,7 +601,7 @@
 
             if (
                    config
-                && (configType === 'object' || isFunction)
+                &amp;&amp; (configType === 'object' || isFunction)
             ) {
 
                 if (isFunction) {
@@ -549,7 +626,7 @@
 
                 temp = util.indexOf(PRIORITY_TYPE, config.timing);
 
-                if(temp < 0) {
+                if(temp &lt; 0) {
                     temp = PRIORITY_TYPE[0]; //default config timing is pre
                 } else {
                     temp = PRIORITY_TYPE[temp];
@@ -559,7 +636,7 @@
 
                 event.replaceSubId(config);
 
-                if(config.rePub && event.hasPub) {
+                if(config.rePub &amp;&amp; event.hasPub) {
                     _debugLog(this.pspName + eventName + ' event was published. Re-publish subId ' + config.subId);
                     event.publishToSubscriber(config.subId);
                 }
@@ -614,14 +691,14 @@
 
             options = options || {};
 
-            if (options && util.isString(eventName)) {
+            if (options &amp;&amp; util.isString(eventName)) {
                 isObj = (optionsType = typeof options) === 'object';
                 //subscribe using default config
                 if (
                     optionsType === 'function'
                     || (
                            isObj
-                        && util.isFunction(options.sub)
+                        &amp;&amp; util.isFunction(options.sub)
                     )
                 ) {
                     if(this.sub(eventName, options) === null) {
@@ -793,3 +870,24 @@
     return PrioritizedPubSub;
 }));
 
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+
+
+        
+
+        <footer>
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta2</a> on Mon Apr 27 2015 02:40:10 GMT+0000 (UTC)
+        </footer>
+    </div>
+</div>
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+<script src="scripts/main.js"></script>
+</body>
+</html>

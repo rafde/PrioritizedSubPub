@@ -1,7 +1,7 @@
 /* global describe*/
 describe('PrioritizedSubPub', function () {
     'use strict';
-    /* global PrioritizedSubPub, it, PSP, expect */
+    /* global PSP, it, PSP, expect */
     var testPSP = new PrioritizedSubPub('TEST'),
         testNumber = -1;
 

@@ -1,0 +1,24 @@
+{
+  "name": "PrioritizedSubPub",
+  "version": "0.9.0",
+  "description": "",
+  "main": "PrioritizedSubPub.js",
+  "devDependencies": {
+    "jaguarjs-jsdoc": "0.0.1",
+    "jsdoc": "^3.3.0-beta3"
+  },
+  "scripts": {
+    "jsdoc": "jsdoc -c ./jsdoc-config.json",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rafde/PrioritizedSubPub.git"
+  },
+  "author": "Rafael De Leon",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/rafde/PrioritizedSubPub/issues"
+  }
+}
