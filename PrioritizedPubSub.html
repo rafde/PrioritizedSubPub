@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Class: PrioritizedPubSub</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/jaguar.css">
+    
+    
+    <script>
+    var config = {"monospaceLinks":false,"cleverLinks":false,"applicationName":"PrioritizedSubPub","linenums":true,"default":{"outputSourceFiles":true}};
+    </script>
+    
+
+    
+</head>
+<body>
+<div id="wrap" class="clearfix">
+    
+<div class="navigation">
+    <h3 class="applicationName"><a href="index.html">PrioritizedSubPub</a></h3>
+
+    <div class="search">
+        <input id="search" type="text" class="form-control input-sm" placeholder="Search Documentations">
+    </div>
+    <ul class="list">
+    
+        <li class="item" data-name="PrioritizedPubSub">
+            <span class="title">
+                <a href="PrioritizedPubSub.html">PrioritizedPubSub</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="PrioritizedPubSub.getEventProxy"><a href="PrioritizedPubSub.html#.getEventProxy">getEventProxy</a></li>
+            
+                <li data-name="PrioritizedPubSub.getEventPubCallback"><a href="PrioritizedPubSub.html#.getEventPubCallback">getEventPubCallback</a></li>
+            
+                <li data-name="PrioritizedPubSub.pub"><a href="PrioritizedPubSub.html#.pub">pub</a></li>
+            
+                <li data-name="PrioritizedPubSub.sub"><a href="PrioritizedPubSub.html#.sub">sub</a></li>
+            
+                <li data-name="PrioritizedPubSub.unSub"><a href="PrioritizedPubSub.html#.unSub">unSub</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+    </ul>
+</div>
+    <div class="main">
+        <h1 class="page-title" data-filename="PrioritizedPubSub.html">Class: PrioritizedPubSub</h1>
+        
+
+
+
+<section>
+    
+<header>
+    <h2>
+    PrioritizedPubSub
+    </h2>
+    
+</header>  
+
+<article>
+    <div class="container-overview">
+    
+    
+    
+        
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="PrioritizedPubSub">
+            
+            new PrioritizedPubSub<span class="signature">(subNameSpace, <span class="optional">options</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="PrioritizedPubSub.html">PrioritizedPubSub</a>|PSPProxy}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            <a href="-_vagrant_var_www_repo_EventPriorityEmitter_PrioritizedSubPub.js.html">/vagrant/var/www/repo/EventPriorityEmitter/PrioritizedSubPub.js</a>, <a href="-_vagrant_var_www_repo_EventPriorityEmitter_PrioritizedSubPub.js.html#line1">line 1</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        PrioritizedPubSub
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>subNameSpace</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                    
+                    
+                        
+                    
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#subscriptionOptions">subscriptionOptions</a></span>
+|
+
+<span class="param-type"><a href="global.html#subscriptionCallback">subscriptionCallback</a></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+                        
+                    
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+</dd>
+
+    
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+        <h3 class="subsection-title">Methods</h3>
+        
+        <dl>
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id=".getEventProxy">
+            
+            <span class="type-signature static">static</span>PrioritizedPubSub.getEventProxy<span class="signature">(eventName)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            <a href="-_vagrant_var_www_repo_EventPriorityEmitter_PrioritizedSubPub.js.html">/vagrant/var/www/repo/EventPriorityEmitter/PrioritizedSubPub.js</a>, <a href="-_vagrant_var_www_repo_EventPriorityEmitter_PrioritizedSubPub.js.html#line789">line 789</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Get an object with proxied functions for re-use.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>eventName</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#eventName">eventName</a></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+        <h5>Example</h5>
+        
+
+    
+    <pre class="prettyprint"><code>var pspEventProxy = PrioritizedPubSub.getEventProxy('myEvent'); // Same as PrioritizedPubSub('myEvent', {pub:{arg1:1, arg2: 2}}); pspEventProxy.pub({arg1:1, arg2: 2}); // Same as PrioritizedPubSub('myEvent', function () { //do stuff }); pspEventProxy.sub(function () { //do stuff }); // Same as PrioritizedPubSub('myEvent', {unSub:'something'}}); pspEventProxy.unSub('something');</code></pre>
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id=".getEventPubCallback">
+            
+            <span class="type-signature static">static</span>PrioritizedPubSub.getEventPubCallback<span class="signature">(eventName)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{function}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            <a href="-_vagrant_var_www_repo_EventPriorityEmitter_PrioritizedSubPub.js.html">/vagrant/var/www/repo/EventPriorityEmitter/PrioritizedSubPub.js</a>, <a href="-_vagrant_var_www_repo_EventPriorityEmitter_PrioritizedSubPub.js.html#line757">line 757</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns a function for use in publishing to an event
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>eventName</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#eventName">eventName</a></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+        <h5>Example</h5>
+        
+
+    
+    <pre class="prettyprint"><code>var pspCb = PrioritizedPubSub.getEventPubCallback('myEvent'); pspCb({arg1:1, arg2: 2}); //same as but you can keep re-using the call back instead of do this over and over. PrioritizedPubSub('myEvent', {pub:{arg1:1, arg2: 2}});</code></pre>
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id=".pub">
+            
+            <span class="type-signature static">static</span>PrioritizedPubSub.pub<span class="signature">(eventName, <span class="optional">options</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="PrioritizedPubSub.html">PrioritizedPubSub</a>}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            <a href="-_vagrant_var_www_repo_EventPriorityEmitter_PrioritizedSubPub.js.html">/vagrant/var/www/repo/EventPriorityEmitter/PrioritizedSubPub.js</a>, <a href="-_vagrant_var_www_repo_EventPriorityEmitter_PrioritizedSubPub.js.html#line727">line 727</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>eventName</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#eventName">eventName</a></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                    
+                    
+                        
+                    
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+                        
+                    
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id=".sub">
+            
+            <span class="type-signature static">static</span>PrioritizedPubSub.sub<span class="signature">(eventName, options)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="PrioritizedPubSub.html">PrioritizedPubSub</a>}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            <a href="-_vagrant_var_www_repo_EventPriorityEmitter_PrioritizedSubPub.js.html">/vagrant/var/www/repo/EventPriorityEmitter/PrioritizedSubPub.js</a>, <a href="-_vagrant_var_www_repo_EventPriorityEmitter_PrioritizedSubPub.js.html#line717">line 717</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>eventName</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#eventName">eventName</a></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#subscriptionOptions">subscriptionOptions</a></span>
+|
+
+<span class="param-type"><a href="global.html#subscriptionCallback">subscriptionCallback</a></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id=".unSub">
+            
+            <span class="type-signature static">static</span>PrioritizedPubSub.unSub<span class="signature">(eventName, subId)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{publicPSP}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            <a href="-_vagrant_var_www_repo_EventPriorityEmitter_PrioritizedSubPub.js.html">/vagrant/var/www/repo/EventPriorityEmitter/PrioritizedSubPub.js</a>, <a href="-_vagrant_var_www_repo_EventPriorityEmitter_PrioritizedSubPub.js.html#line737">line 737</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>eventName</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#eventName">eventName</a></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>subId</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#subscriptionId">subscriptionId</a></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+</dd>
+
+        </dl>
+    
+    
+    
+    
+    
+</article>
+
+</section>  
+
+
+
+
+
+        
+
+        <footer>
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta2</a> on Mon Apr 27 2015 02:40:10 GMT+0000 (UTC)
+        </footer>
+    </div>
+</div>
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+<script src="scripts/main.js"></script>
+</body>
+</html>

@@ -1,144 +1,108 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <meta charset="utf-8">
+    <title>Index</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/jaguar.css">
+    
+    
+    <script>
+    var config = {"monospaceLinks":false,"cleverLinks":false,"applicationName":"PrioritizedSubPub","linenums":true,"default":{"outputSourceFiles":true}};
+    </script>
+    
 
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="EventPriorityEmitter : ">
+    
+</head>
+<body>
+<div id="wrap" class="clearfix">
+    
+<div class="navigation">
+    <h3 class="applicationName"><a href="index.html">PrioritizedSubPub</a></h3>
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>EventPriorityEmitter</title>
-  </head>
-
-  <body>
-
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/rafde/EventPriorityEmitter">View on GitHub</a>
-
-          <h1 id="project_title">EventPriorityEmitter</h1>
-          <h2 id="project_tagline"></h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/rafde/EventPriorityEmitter/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/rafde/EventPriorityEmitter/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
+    <div class="search">
+        <input id="search" type="text" class="form-control input-sm" placeholder="Search Documentations">
     </div>
+    <ul class="list">
+    
+        <li class="item" data-name="PrioritizedPubSub">
+            <span class="title">
+                <a href="PrioritizedPubSub.html">PrioritizedPubSub</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="PrioritizedPubSub.getEventProxy"><a href="PrioritizedPubSub.html#.getEventProxy">getEventProxy</a></li>
+            
+                <li data-name="PrioritizedPubSub.getEventPubCallback"><a href="PrioritizedPubSub.html#.getEventPubCallback">getEventPubCallback</a></li>
+            
+                <li data-name="PrioritizedPubSub.pub"><a href="PrioritizedPubSub.html#.pub">pub</a></li>
+            
+                <li data-name="PrioritizedPubSub.sub"><a href="PrioritizedPubSub.html#.sub">sub</a></li>
+            
+                <li data-name="PrioritizedPubSub.unSub"><a href="PrioritizedPubSub.html#.unSub">unSub</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+    </ul>
+</div>
+    <div class="main">
+        <h1 class="page-title" data-filename="index.html">Index</h1>
+        
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <p><a name="EventPriorityEmitter"></a></p>
-
-<h1>
-<a name="eventpriorityemittereventname-options" class="anchor" href="#eventpriorityemittereventname-options"><span class="octicon octicon-link"></span></a>EventPriorityEmitter([eventName=], [options])</h1>
-
-<p>Public interface for using EventPriorityEmitter.</p>
-
-<p><strong>Params</strong></p>
-
-<ul>
-<li>[eventName=] <code>String</code> - Name to give to the event.<br>
-</li>
-<li>[options] <code>Object</code> | <code>function</code> - An object for options or function to subscribe. Certain options
-                                           trigger certain actions, other non-related options will be discarded.<br>
-
-<ul>
-<li>[pub] <code>Object</code> - For event publishing. If eventName is passed
-                                         and options, options.unSub, or options.pub are undefined,
-                                         then options.pub gets set to {} and the event publishes.<br>
-</li>
-<li>[rePub] <code>Boolean</code> - If set to true and subscribing to an event and the event had
-                                         published in the past, then re-publish for this subscriber
-                                         using the previous options.pub<br>
-</li>
-<li>[unSub] <code>String</code> - Required for un-subscribing from priority list.
-                                         The string refers to the subId to remove from list of priorities.<br>
-</li>
-<li>[sub] <code>function</code> - Required for subscribing to an event.<br>
-</li>
-<li>[subId] <code>String</code> - Optional for subscribing. Use for identifying and removing
-                                         from priority list. Randomly generated if not defined when
-                                         subscribing (options.sub or options is a function).<br>
-</li>
-<li>[priority] <code>int</code> - 0-11 where 0 is the lowest (last subscriber to get published data) priority 
-                                         and 11 is the highest (first subscriber to get published data). 
-                                         Every subscription will append to the list of priorities, 
-                                         except for options.timing=1 since there can be only one default.
-                                         If subscribing and options.priority is not set, 0 is be used. 
-                                         This is ignored when options.timing=1.<br>
-</li>
-<li>[timing] <code>String</code> - When the priority should happen.
-                                         pre = before default timing. There can be many of these timings.
-                                         def = default publish event. There is only one default timing.
-                                         post = after default event. There can be many of these timings.
-                                         If subscribing and options.timing is not set, 2 will be used.<br>
-</li>
-</ul>
-</li>
-</ul>
-
-<p><strong>Returns</strong>: <code>undefined</code> | <code>function</code> - "new EventPriorityEmitter" returns a function with a new
-                                               instance of EventPriorityEmitter for private use.
-                                               Otherwise, it will publish, subscribe, or un-subscribe to
-                                               global EventPriorityEmitter and return undefined.<br>
-<strong>Example</strong><br>
-//subscribe using default config</p>
-
-<p>EventPriorityEmitter('myGlobalEvent', function (args) { console &amp;&amp; console.log &amp;&amp; console.log(args); });</p>
-
-<p>//subscribe default timing</p>
-
-<p>EventPriorityEmitter('myGlobalEvent', {</p>
-
-<p>"timing" : "def",</p>
-
-<p>"sub" : function (args) {
-     if (args &amp;&amp; args.stuff) {
-         //do something by default
-     }
- }
-});</p>
-
-<p>//subscribe post timing</p>
-
-<p>EventPriorityEmitter('myGlobalEvent', {</p>
-
-<p>"subId": "sub id 2",</p>
-
-<p>"timing" : "post",</p>
-
-<p>"priority": 11,</p>
-
-<p>"sub" : function (args) {
-     if (args &amp;&amp; args.somethingelse) {
-         //do something after default and before other priorities
-     }
- }
-});</p>
-
-<p>//publish object with data inside the you want subscribers to consume</p>
-
-<p>EventPriorityEmitter('myGlobalEvent', {"pub": {"stuff" : "data"}});</p>
-
-<p>//un-subscribe a subId</p>
-
-<p>EventPriorityEmitter('myGlobalEvent', {"unSub": "sub id 2"});</p>
-      </section>
-    </div>
-
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">EventPriorityEmitter maintained by <a href="https://github.com/rafde">rafde</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
 
     
 
-  </body>
+
+    <h3> </h3>
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+        
+
+        <footer>
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta2</a> on Mon Apr 27 2015 02:40:10 GMT+0000 (UTC)
+        </footer>
+    </div>
+</div>
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+<script src="scripts/main.js"></script>
+</body>
 </html>
