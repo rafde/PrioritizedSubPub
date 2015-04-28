@@ -86,13 +86,13 @@
 /**
  * When the priority should happen. If not set during subscribing, pre will be used.
  *
+ * pre : Before default timing. There can be many of these timings.
+ *
+ * def : Default publish event. There is only one default timing.
+ *
+ * post :After default event. There can be many of these timings.
+ *
  * @typedef {String} subscriptionTimings
- *
- * @desc pre    Before default timing. There can be many of these timings.
- *
- * @desc def    Default publish event. There is only one default timing.
- *
- * @desc post   After default event. There can be many of these timings.
  */
 
 /**
