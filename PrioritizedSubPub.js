@@ -1,73 +1,121 @@
 /**
  * PrioritizedPubSub
+ *
  * @class PrioritizedPubSub
- * @param   {String}                                        subNameSpace
- * @param   {subscriptionOptions|subscriptionCallback}      [options]
- * @returns {PrioritizedPubSub|PSPProxy}
+ *
+ * @param   {String}                                subNameSpace    Name of new PrioritizedPubSub
+ *
+ * @returns {PSPProxy}                              `PSPProxy` is returned when `new` is used. It's has the same
+ *                                                  behavior and signatures as PrioritizedPubSub but can only be used
+ *                                                  if saved to a variable.
+ */
+
+/**
+ *
+ * @function PrioritizedPubSub
+ *
+ * @param {eventName}                           eventName
+ *
+ * @param   {pspOptions|subscriptionCallback}   [options]
+ *
+ * @return {PrioritizedPubSub}
+ */
+
+/**
+ * Object passed to PrioritizedPubSub.
+ *
+ * @typedef {Object} pspOptions
+ *
+ * @property {subscriptionCallback}     sub       Required for subscribing to an event. See {@link subscriptionCallback}
+ *                                                This option has the highest precedence.
+ *                                                Can be combined with {@link subscriptionOptions}
+ *
+ * @property {subscriptionId}           unSub     Required for un-subscribing an event. If set, pspOptions.pub will be ignored
+ *
+ * @property {pubArgs}                  pub       Required for publishing to subscribers. All other options have higher precedence.
+ */
+
+/**
+ * Object of arguments passed to PrioritizedPubSub.pub or PrioritizedPubSub
+ * for {@link subscriptionCallback} to use.
+ *
+ * @typedef {Object} pubArgs
  */
 
 /**
  * Event name used for subscribing/publishing to.
+ *
  * @typedef {String} eventName
  */
 
 /**
  * User-defined id for identifying and removing from priority list. Randomly generated if not defined when
  * subscribing.
+ *
  * @typedef {String} subscriptionId
  */
 
 /**
+ * All the options can be passed to PrioritizedPubSub and PrioritizedPubSub.sub
+ *
  * @typedef {Object} subscriptionOptions
  *
- * @property {subscriptionCallback}                         Required for subscribing to an event. See {@see subscriptionCallback}
+ * @property {Integer}                  [unSubCount]    Will subscribe to however many times set. When it reaches the
+ *                                                      limit, it will un-subscribe itself. Decrementing can be bypassed.
+ *                                                      See {@link pspObj}
  *
+ * @property {Boolean}                  [rePub]        If set to true and subscribing to an event and the event had
+*                                                      published in the past, then re-publish for this subscriber
+ *                                                     using the previously publish data.
  *
- * @property {Integer}  [subscriptionCallback.unSubCount]   Will subscribe to however many times set. When it reaches the
- *                                                          limit, it will un-subscribe itself. Decrementing can be bypassed.
- *                                                          See {@see pspObj}
+ * @property {String}                   [subId]        {@link subscriptionId}
  *
- * @property {Boolean}  [subscriptionCallback.rePub]        If set to true and subscribing to an event and the event had
-*                                                           published in the past, then re-publish for this subscriber
- *                                                          using the previously publish data.
+ * @property {Integer}                  [priority]     0-11 where 0 is the lowest (last subscriber to get published data) priority
+ *                                                     and 11 is the highest (first subscriber to get published data).
+ *                                                     Every subscription will append to the list of priorities,
+ *                                                     except for subscriptionOptions.timing="def" since there
+ *                                                     can be only one default.
+ *                                                     If subscribing and options.priority is not set, 6 is used.
+ *                                                     This is ignored when subscriptionOptions.timing="def".
  *
- * @property {String}   [subscriptionCallback.subId]        {@see subscriptionId}
+ * @property {String}                   [timing]        See {@link subscriptionTimings}
  *
- * @property {Integer}  [subscriptionCallback.priority]      0-11 where 0 is the lowest (last subscriber to get published data) priority
- *                                                           and 11 is the highest (first subscriber to get published data).
- *                                                           Every subscription will append to the list of priorities,
- *                                                           except for subscriptionOptions.timing="def" since there
- *                                                           can be only one default.
- *                                                           If subscribing and options.priority is not set, 6 is used.
- *                                                           This is ignored when subscriptionOptions.timing="def".
- *
- * @property {String}   [subscriptionCallback.timing]        See {@see subscriptionTimings}
- *
- * @property {*}        [subscriptionCallback.context]       Specify the context of `this`
+ * @property {*}                        [context]       Specify the context of `this`
  */
 
 /**
  * When the priority should happen. If not set during subscribing, pre will be used.
+ *
  * @typedef {String} subscriptionTimings
+ *
  * @desc pre    Before default timing. There can be many of these timings.
+ *
  * @desc def    Default publish event. There is only one default timing.
+ *
  * @desc post   After default event. There can be many of these timings.
  */
 
 /**
- * Object passed to {@see subscriptionCallback}.
- * @typedef {Object} pspObj
- * @property {Object} pspObj.CONST
- * @property {String} pspObj.CONST.SKIP_DEC      Prevent the subscriptionOptions.unSubCount from decrementing
- * @property {String} pspObj.CONST.UNSUB         Used to un-subscribe subscriptionCallback
+ * Object passed to {@link subscriptionCallback} as a second parameter.
+ *
+ * @typedef {Object}  pspObj
+ *
+ * @property {Object} CONST
+ *
+ * @property {String} CONST.SKIP_DEC        Prevent the subscriptionOptions.unSubCount from decrementing by
+ *                                          returning from {@link subscriptionCallback}
+ *
+ * @property {String} CONST.UNSUB           Used to un-subscribe by returning from (@link subscriptionCallback}.
  */
 
 /**
- * This callback type is called `subscriptionCallback`.
+ * Callback used for subscriptions.
  *
  * @callback subscriptionCallback
- * @param {Object}  args
- * @param {pspObj}
+ *
+ * @param {pubArgs} args
+ *
+ * @param {pspObj}  pspObj
  */
 (function (root, factory) {
     'use strict';
@@ -153,12 +201,27 @@
         if (PrioritizedPubSub.isLogged && console && (log = console.log)) {
             args = util.toArray(arguments);
             args.unshift('PSP: ');
-            try{
-                log.apply(console, args);
-            } catch(e) {
-                log(args);
-            }
+
+            _debugLog.log(args);
         }
+    }
+
+    if(window && window.console) { //IE <= 8 fix
+        _debugLog.log = function (args) {
+            try{
+                window.console.log.apply(window.console, args);
+            } catch(e) {
+                window.console.log(args);
+            }
+        };
+    } else {
+        _debugLog.log = function (args) {
+            try{
+                console.log.apply(console, args);
+            } catch(e) {
+                console.log(args);
+            }
+        };
     }
 
     /**
@@ -732,7 +795,7 @@
      * @memberOf PrioritizedPubSub
      * @param {eventName}       eventName
      * @param {subscriptionId}  subId
-     * @returns {publicPSP}
+     * @returns {PrioritizedPubSub}
      */
     PrioritizedPubSub.unSub = _globalPSP.unSub;
 

@@ -5,10 +5,14 @@
   "main": "PrioritizedSubPub.js",
   "devDependencies": {
     "jaguarjs-jsdoc": "0.0.1",
-    "jsdoc": "^3.3.0-beta3"
+    "jsdoc": "^3.3.0-beta3",
+    "jsdoc-to-markdown": "^1.0.3",
+    "uglify-js": "2.4.10"
   },
   "scripts": {
-    "jsdoc": "jsdoc -c ./jsdoc-config.json",
+    "jsdoc": "jsdoc -c jsdoc-config.json",
+    "jsdoc-to-markdown": "jsdoc2md PrioritizedSubPub.js > README.md",
+    "uglify-js": "uglifyjs PrioritizedSubPub.js -c -m -o PrioritizedSubPub.min.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
