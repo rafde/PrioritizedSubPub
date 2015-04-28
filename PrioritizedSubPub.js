@@ -1,7 +1,9 @@
 /**
  * PrioritizedPubSub
  *
- * @class PrioritizedPubSub
+ * @name PrioritizedPubSub
+ *
+ * @constructor
  *
  * @param   {String}                                subNameSpace    Name of new PrioritizedPubSub
  *
@@ -13,6 +15,8 @@
 /**
  *
  * @function PrioritizedPubSub
+ *
+ * @global
  *
  * @param {eventName}                           eventName
  *
@@ -198,7 +202,7 @@
         /* global console */
         var args,
             log;
-        if (PrioritizedPubSub.isLogged && console && (log = console.log)) {
+        if (PrioritizedPubSub.isLogged) {
             args = util.toArray(arguments);
             args.unshift('PSP: ');
 
