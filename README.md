@@ -28,7 +28,10 @@ subscribing.</p>
 <dd><p>All the options can be passed to PrioritizedPubSub and PrioritizedPubSub.sub</p>
 </dd>
 <dt><a href="#subscriptionTimings">subscriptionTimings</a> : <code>String</code></dt>
-<dd><p>post   After default event. There can be many of these timings.</p>
+<dd><p>When the priority should happen. If not set during subscribing, pre will be used.</p>
+<p>pre : Before default timing. There can be many of these timings.</p>
+<p>def : Default publish event. There is only one default timing.</p>
+<p>post :After default event. There can be many of these timings.</p>
 </dd>
 <dt><a href="#pspObj">pspObj</a> : <code>Object</code></dt>
 <dd><p>Object passed to <a href="#subscriptionCallback">subscriptionCallback</a> as a second parameter.</p>
@@ -243,7 +246,7 @@ All the options can be passed to PrioritizedPubSub and PrioritizedPubSub.sub
 
 <a name="subscriptionTimings"></a>
 ## subscriptionTimings : <code>String</code>
-post   After default event. There can be many of these timings.
+When the priority should happen. If not set during subscribing, pre will be used.pre : Before default timing. There can be many of these timings.def : Default publish event. There is only one default timing.post :After default event. There can be many of these timings.
 
 **Kind**: global typedef  
 <a name="pspObj"></a>
