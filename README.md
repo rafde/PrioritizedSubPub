@@ -105,7 +105,7 @@ var pspCb = PrioritizedPubSub.getEventPubCallback('myEvent'); pspCb({arg1:1, a
 ```
 <a name="PrioritizedPubSub.getEventProxy"></a>
 ### PrioritizedPubSub.getEventProxy(eventName) ⇒ <code>Object</code>
-Get an object with proxied functions for re-use.
+Get an object with proxy functions for re-use.
 
 **Kind**: static method of <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>  
 
@@ -124,7 +124,7 @@ var pspEventProxy = PrioritizedPubSub.getEventProxy('myEvent'); // Same as Pri
 | Param | Type |
 | --- | --- |
 | eventName | <code>[eventName](#eventName)</code> | 
-| [options] | <code>[pspOptions](#pspOptions)</code> &#124; <code>[subscriptionCallback](#subscriptionCallback)</code> | 
+| [options] | <code>[pspOptions](#pspOptions)</code> &#124; <code>[subscriptionCallback](#subscriptionCallback)</code> &#124; <code>function</code> | 
 
 
 * [PrioritizedPubSub(eventName, [options])](#PrioritizedPubSub) ⇒ <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>
@@ -188,7 +188,7 @@ var pspCb = PrioritizedPubSub.getEventPubCallback('myEvent'); pspCb({arg1:1, a
 ```
 <a name="PrioritizedPubSub.getEventProxy"></a>
 ### PrioritizedPubSub.getEventProxy(eventName) ⇒ <code>Object</code>
-Get an object with proxied functions for re-use.
+Get an object with proxy functions for re-use.
 
 **Kind**: static method of <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>  
 
@@ -235,14 +235,14 @@ All the options can be passed to PrioritizedPubSub and PrioritizedPubSub.sub
 **Kind**: global typedef  
 **Properties**
 
-| Name | Type | Description |
-| --- | --- | --- |
-| unSubCount | <code>Integer</code> | Will subscribe to however many times set. When it reaches the                                                      limit, it will un-subscribe itself. Decrementing can be bypassed.                                                      See [pspObj](#pspObj) |
-| rePub | <code>Boolean</code> | If set to true and subscribing to an event and the event had                                                      published in the past, then re-publish for this subscriber                                                     using the previously publish data. |
-| subId | <code>String</code> | [subscriptionId](#subscriptionId) |
-| priority | <code>Integer</code> | 0-11 where 0 is the lowest (last subscriber to get published data) priority                                                     and 11 is the highest (first subscriber to get published data).                                                     Every subscription will append to the list of priorities,                                                     except for subscriptionOptions.timing="def" since there                                                     can be only one default.                                                     If subscribing and options.priority is not set, 6 is used.                                                     This is ignored when subscriptionOptions.timing="def". |
-| timing | <code>String</code> | See [subscriptionTimings](#subscriptionTimings) |
-| context | <code>\*</code> | Specify the context of `this` |
+| Name | Type | Default | Description |
+| --- | --- | --- | --- |
+| unSubCount | <code>Integer</code> |  | Will subscribe to however many times set. When it reaches the                                                      limit, it will un-subscribe itself. Decrementing can be bypassed.                                                      See [pspObj](#pspObj) |
+| rePub | <code>Boolean</code> | <code>false</code> | If set to true and subscribing to an event and the event had                                                      published in the past, then re-publish for this subscriber                                                      using the previously publish data. |
+| subId | <code>String</code> |  | [subscriptionId](#subscriptionId) |
+| priority | <code>Number</code> | <code>0</code> | Can be any number type, excluding `NaN`.                                                      Every subscription will append to the list of priorities,                                                      except for subscriptionOptions.timing="def" since there                                                      can be only one default.                                                      If subscribing and options.priority is not set, 0 is used.                                                      This option is ignored when subscriptionOptions.timing="def". |
+| timing | <code>String</code> | <code>&#x27;pre&#x27;</code> | See [subscriptionTimings](#subscriptionTimings) |
+| context | <code>\*</code> |  | Specify the context of `this` |
 
 <a name="subscriptionTimings"></a>
 ## subscriptionTimings : <code>String</code>

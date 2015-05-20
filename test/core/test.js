@@ -63,6 +63,7 @@ describe('PrioritizedSubPub', function () {
     });
 
 
+
     it('should subscribe, publish, un-subscribe, publish', function () {
         var num = ++testNumber,
             testData = {},
@@ -643,43 +644,6 @@ describe('PrioritizedSubPub', function () {
 
         expect(testData[testName]).toBe('post 1-again');
         expect(subCount).toBe(10);
-    });
-
-    it('should subscribe and self remove, subscribe, subscribe and self remove, then publish', function () {
-        var num = ++testNumber,
-            testData = {},
-            testName = 'test' + num;
-
-        testData[testName] = 0;
-
-        testPSP(
-            testName,
-            function (args, pspOpts) {
-                testData[testName] += 2;
-                return pspOpts.CONST.UNSUB;
-            }
-        );
-
-        testPSP(
-            testName,
-            function (args) {
-                testData[testName] = args.data;
-            }
-        );
-
-        testPSP(
-            testName,
-            function (args, pspOpts) {
-                testData[testName] += 3;
-                return pspOpts.CONST.UNSUB;
-            }
-        );
-
-        testPSP(testName, {'data': num});
-        expect(testData[testName]).toBe(num + 3);
-
-        testPSP(testName, {'data': num});
-        expect(testData[testName]).toBe(num);
     });
 
     it('should subscribe and self remove, subscribe, subscribe and self remove, then publish', function () {
