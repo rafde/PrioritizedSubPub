@@ -1,6 +1,5 @@
 /**
- * PrioritizedPubSub
- *
+ * Constructs a new PrioritizedPubSub
  *
  * @class PrioritizedPubSub
  *
@@ -12,25 +11,23 @@
  */
 
 /**
- * Has the same functionality and properties as {@link PrioritizedPubSub} minus the constructor
- * (cant use `var myPSPProxy = new PrioritizedPubSub('myPSP'); new myPSPProxy('anotherPSP');`).
+ * Makes an event call to the GLOBAL subNameSpace
  *
- * @typedef {function} PSPProxy
- *
- * @static
- *
- */
-
-/**
  * @function PrioritizedPubSub
- *
- * @static
  *
  * @param   {eventName}                                 eventName
  *
  * @param   {pspOptions|subscriptionCallback|function}  [options]
  *
  * @return {PrioritizedPubSub}
+ */
+
+/**
+ * Has the same functionality and properties as {@link PrioritizedPubSub} minus the constructor
+ * (cant use `var myPSPProxy = new PrioritizedPubSub('myPSP'); new myPSPProxy('anotherPSP');`).
+ *
+ * @typedef {function} PSPProxy
+ *
  */
 
 /**
@@ -278,7 +275,6 @@
      * @class Subscriptions
      * @param eventName
      * @param pspName
-     * @constructor
      */
     function Subscriptions(eventName, pspName) {
         var i = 0,
@@ -595,7 +591,6 @@
     /**
      * @private
      * @class PSP
-     * @constructor
      * @param {String} PSPName name to use to identify what PSP is firing for console log.
      */
     function PSP(PSPName) {
@@ -842,9 +837,11 @@
     }
 
     /**
-     * @static
-     * @memberOf PrioritizedPubSub
+     * Subscribe a function. See params for further info.
+     *
      * @function
+     * @static
+     * @memberof PrioritizedPubSub
      * @param   {eventName}                                 eventName
      * @param   {subscriptionOptions|subscriptionCallback}  options
      * @returns {PrioritizedPubSub}
@@ -852,9 +849,10 @@
     PrioritizedPubSub.sub = _globalPSP.sub;
 
     /**
-     * @static
+     * Publish an event for all the subscribers to listen to.
+     *
      * @function
-     * @memberOf PrioritizedPubSub
+     * @memberof PrioritizedPubSub
      * @param   {eventName} eventName
      * @param   {Object}    [options]
      * @returns {PrioritizedPubSub}
@@ -862,9 +860,11 @@
     PrioritizedPubSub.pub = _globalPSP.pub;
 
     /**
-     * @static
+     * Removes a subscription in an event name
+     *
      * @function
-     * @memberOf PrioritizedPubSub
+     * @static
+     * @memberof PrioritizedPubSub
      * @param {eventName}       eventName
      * @param {subscriptionId}  subId
      * @returns {PrioritizedPubSub}
@@ -883,9 +883,9 @@
      *
      *  PrioritizedPubSub('myEvent', {pub:{arg1:1, arg2: 2}});
      *
-     * @static
      * @function
-     * @memberOf PrioritizedPubSub
+     * @static
+     * @memberof PrioritizedPubSub
      * @param {eventName}   eventName
      * @returns {Function}
      */
@@ -909,9 +909,9 @@
      *
      *  pspEventProxy.unSub('something');
      *
-     * @static
      * @function
-     * @memberOf PrioritizedPubSub
+     * @static
+     * @memberof PrioritizedPubSub
      * @param {eventName} eventName
      * @returns {
      *      {
