@@ -1,7 +1,7 @@
 /* global describe*/
 describe('PrioritizedSubPub', function () {
     'use strict';
-    /* global PSP, it, PSP, expect */
+    /* global PrioritizedSubPub, it, PSP, expect */
     var testPSP = new PrioritizedSubPub('TEST'),
         testNumber = -1;
 
@@ -784,4 +784,57 @@ describe('PrioritizedSubPub', function () {
         expect(testData[testName]).toBe(1);
     });
 
+    it('should assign testData to 12 then -13', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num;
+
+        testData[testName] = 0;
+
+        testPSP(
+            testName,
+            {
+                'sub': function () {
+                    testData[testName] = 11;
+                },
+                priority: 2
+            }
+        );
+
+        testPSP(
+            testName,
+            {
+                'sub': function () {
+                    testData[testName] = 12;
+                },
+                priority: 2
+            }
+        );
+
+        testPSP(testName);
+        expect(testData[testName]).toBe(12);
+
+        testPSP(
+            testName,
+            {
+                'sub': function () {
+                    testData[testName] = 13;
+                },
+                priority: 13
+            }
+        );
+
+        testPSP(
+            testName,
+            {
+                'sub': function () {
+                    testData[testName] = -13;
+                },
+                priority: -13
+            }
+        );
+
+        testPSP(testName);
+        expect(testData[testName]).toBe(-13);
+    });
 });
