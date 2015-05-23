@@ -1,7 +1,7 @@
 /* global describe*/
 describe('PrioritizedSubPub', function () {
     'use strict';
-    /* global PSP, it, PSP, expect */
+    /* global PrioritizedSubPub, it, PSP, expect */
     var testPSP = new PrioritizedSubPub('TEST'),
         testNumber = -1;
 
@@ -61,6 +61,7 @@ describe('PrioritizedSubPub', function () {
 
         expect(testData[testName]).toBe(num);
     });
+
 
 
     it('should subscribe, publish, un-subscribe, publish', function () {
@@ -682,43 +683,6 @@ describe('PrioritizedSubPub', function () {
         expect(testData[testName]).toBe(num);
     });
 
-    it('should subscribe and self remove, subscribe, subscribe and self remove, then publish', function () {
-        var num = ++testNumber,
-            testData = {},
-            testName = 'test' + num;
-
-        testData[testName] = 0;
-
-        testPSP(
-            testName,
-            function (args, pspOpts) {
-                testData[testName] += 2;
-                return pspOpts.CONST.UNSUB;
-            }
-        );
-
-        testPSP(
-            testName,
-            function (args) {
-                testData[testName] = args.data;
-            }
-        );
-
-        testPSP(
-            testName,
-            function (args, pspOpts) {
-                testData[testName] += 3;
-                return pspOpts.CONST.UNSUB;
-            }
-        );
-
-        testPSP(testName, {'data': num});
-        expect(testData[testName]).toBe(num + 3);
-
-        testPSP(testName, {'data': num});
-        expect(testData[testName]).toBe(num);
-    });
-
     it('should subscribe and unpub after 3 publish', function () {
         var num = ++testNumber,
             testData = {},
@@ -820,4 +784,57 @@ describe('PrioritizedSubPub', function () {
         expect(testData[testName]).toBe(1);
     });
 
+    it('should assign testData to 12 then -13', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num;
+
+        testData[testName] = 0;
+
+        testPSP(
+            testName,
+            {
+                'sub': function () {
+                    testData[testName] = 11;
+                },
+                priority: 2
+            }
+        );
+
+        testPSP(
+            testName,
+            {
+                'sub': function () {
+                    testData[testName] = 12;
+                },
+                priority: 2
+            }
+        );
+
+        testPSP(testName);
+        expect(testData[testName]).toBe(12);
+
+        testPSP(
+            testName,
+            {
+                'sub': function () {
+                    testData[testName] = 13;
+                },
+                priority: 13
+            }
+        );
+
+        testPSP(
+            testName,
+            {
+                'sub': function () {
+                    testData[testName] = -13;
+                },
+                priority: -13
+            }
+        );
+
+        testPSP(testName);
+        expect(testData[testName]).toBe(-13);
+    });
 });

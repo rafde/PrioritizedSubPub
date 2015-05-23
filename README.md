@@ -6,10 +6,15 @@
 ## Functions
 <dl>
 <dt><a href="#PrioritizedPubSub">PrioritizedPubSub(eventName, [options])</a> ⇒ <code><a href="#PrioritizedPubSub">PrioritizedPubSub</a></code></dt>
-<dd></dd>
+<dd><p>Makes an event call to the GLOBAL subNameSpace</p>
+</dd>
 </dl>
 ## Typedefs
 <dl>
+<dt><a href="#PSPProxy">PSPProxy</a> : <code>function</code></dt>
+<dd><p>Has the same functionality and properties as <a href="#PrioritizedPubSub">PrioritizedPubSub</a> minus the constructor
+(cant use <code>var myPSPProxy = new PrioritizedPubSub(&#39;myPSP&#39;); new myPSPProxy(&#39;anotherPSP&#39;);</code>).</p>
+</dd>
 <dt><a href="#pspOptions">pspOptions</a> : <code>Object</code></dt>
 <dd><p>Object passed to PrioritizedPubSub.</p>
 </dd>
@@ -54,9 +59,9 @@ subscribing.</p>
 
 <a name="new_PrioritizedPubSub_new"></a>
 ### new PrioritizedPubSub(subNameSpace)
-PrioritizedPubSub
+Constructs a new PrioritizedPubSub
 
-**Returns**: <code>PSPProxy</code> - `PSPProxy` is returned when `new` is used. It's has the same                                                 behavior and signatures as PrioritizedPubSub but can only be used                                                 if saved to a variable.  
+**Returns**: <code>[PSPProxy](#PSPProxy)</code> - `PSPProxy` is returned when `new` is used. It's has the same                                                 behavior and signatures as PrioritizedPubSub but can only be used                                                 if saved to a variable.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -64,6 +69,8 @@ PrioritizedPubSub
 
 <a name="PrioritizedPubSub.sub"></a>
 ### PrioritizedPubSub.sub(eventName, options) ⇒ <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>
+Subscribe a function. See params for further info.
+
 **Kind**: static method of <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>  
 
 | Param | Type |
@@ -73,6 +80,8 @@ PrioritizedPubSub
 
 <a name="PrioritizedPubSub.pub"></a>
 ### PrioritizedPubSub.pub(eventName, [options]) ⇒ <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>
+Publish an event for all the subscribers to listen to.
+
 **Kind**: static method of <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>  
 
 | Param | Type |
@@ -82,6 +91,8 @@ PrioritizedPubSub
 
 <a name="PrioritizedPubSub.unSub"></a>
 ### PrioritizedPubSub.unSub(eventName, subId) ⇒ <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>
+Removes a subscription in an event name
+
 **Kind**: static method of <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>  
 
 | Param | Type |
@@ -105,7 +116,7 @@ var pspCb = PrioritizedPubSub.getEventPubCallback('myEvent'); pspCb({arg1:1, a
 ```
 <a name="PrioritizedPubSub.getEventProxy"></a>
 ### PrioritizedPubSub.getEventProxy(eventName) ⇒ <code>Object</code>
-Get an object with proxied functions for re-use.
+Get an object with proxy functions for re-use.
 
 **Kind**: static method of <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>  
 
@@ -119,12 +130,14 @@ var pspEventProxy = PrioritizedPubSub.getEventProxy('myEvent'); // Same as Pri
 ```
 <a name="PrioritizedPubSub"></a>
 ## PrioritizedPubSub(eventName, [options]) ⇒ <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>
+Makes an event call to the GLOBAL subNameSpace
+
 **Kind**: global function  
 
 | Param | Type |
 | --- | --- |
 | eventName | <code>[eventName](#eventName)</code> | 
-| [options] | <code>[pspOptions](#pspOptions)</code> &#124; <code>[subscriptionCallback](#subscriptionCallback)</code> | 
+| [options] | <code>[pspOptions](#pspOptions)</code> &#124; <code>[subscriptionCallback](#subscriptionCallback)</code> &#124; <code>function</code> | 
 
 
 * [PrioritizedPubSub(eventName, [options])](#PrioritizedPubSub) ⇒ <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>
@@ -137,9 +150,9 @@ var pspEventProxy = PrioritizedPubSub.getEventProxy('myEvent'); // Same as Pri
 
 <a name="new_PrioritizedPubSub_new"></a>
 ### new PrioritizedPubSub(subNameSpace)
-PrioritizedPubSub
+Constructs a new PrioritizedPubSub
 
-**Returns**: <code>PSPProxy</code> - `PSPProxy` is returned when `new` is used. It's has the same                                                 behavior and signatures as PrioritizedPubSub but can only be used                                                 if saved to a variable.  
+**Returns**: <code>[PSPProxy](#PSPProxy)</code> - `PSPProxy` is returned when `new` is used. It's has the same                                                 behavior and signatures as PrioritizedPubSub but can only be used                                                 if saved to a variable.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -147,6 +160,8 @@ PrioritizedPubSub
 
 <a name="PrioritizedPubSub.sub"></a>
 ### PrioritizedPubSub.sub(eventName, options) ⇒ <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>
+Subscribe a function. See params for further info.
+
 **Kind**: static method of <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>  
 
 | Param | Type |
@@ -156,6 +171,8 @@ PrioritizedPubSub
 
 <a name="PrioritizedPubSub.pub"></a>
 ### PrioritizedPubSub.pub(eventName, [options]) ⇒ <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>
+Publish an event for all the subscribers to listen to.
+
 **Kind**: static method of <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>  
 
 | Param | Type |
@@ -165,6 +182,8 @@ PrioritizedPubSub
 
 <a name="PrioritizedPubSub.unSub"></a>
 ### PrioritizedPubSub.unSub(eventName, subId) ⇒ <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>
+Removes a subscription in an event name
+
 **Kind**: static method of <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>  
 
 | Param | Type |
@@ -188,7 +207,7 @@ var pspCb = PrioritizedPubSub.getEventPubCallback('myEvent'); pspCb({arg1:1, a
 ```
 <a name="PrioritizedPubSub.getEventProxy"></a>
 ### PrioritizedPubSub.getEventProxy(eventName) ⇒ <code>Object</code>
-Get an object with proxied functions for re-use.
+Get an object with proxy functions for re-use.
 
 **Kind**: static method of <code>[PrioritizedPubSub](#PrioritizedPubSub)</code>  
 
@@ -200,6 +219,11 @@ Get an object with proxied functions for re-use.
 ```js
 var pspEventProxy = PrioritizedPubSub.getEventProxy('myEvent'); // Same as PrioritizedPubSub('myEvent', {pub:{arg1:1, arg2: 2}}); pspEventProxy.pub({arg1:1, arg2: 2}); // Same as PrioritizedPubSub('myEvent', function () { //do stuff }); pspEventProxy.sub(function () { //do stuff }); // Same as PrioritizedPubSub('myEvent', {unSub:'something'}}); pspEventProxy.unSub('something');
 ```
+<a name="PSPProxy"></a>
+## PSPProxy : <code>function</code>
+Has the same functionality and properties as [PrioritizedPubSub](#PrioritizedPubSub) minus the constructor(cant use `var myPSPProxy = new PrioritizedPubSub('myPSP'); new myPSPProxy('anotherPSP');`).
+
+**Kind**: global typedef  
 <a name="pspOptions"></a>
 ## pspOptions : <code>Object</code>
 Object passed to PrioritizedPubSub.
@@ -235,14 +259,14 @@ All the options can be passed to PrioritizedPubSub and PrioritizedPubSub.sub
 **Kind**: global typedef  
 **Properties**
 
-| Name | Type | Description |
-| --- | --- | --- |
-| unSubCount | <code>Integer</code> | Will subscribe to however many times set. When it reaches the                                                      limit, it will un-subscribe itself. Decrementing can be bypassed.                                                      See [pspObj](#pspObj) |
-| rePub | <code>Boolean</code> | If set to true and subscribing to an event and the event had                                                      published in the past, then re-publish for this subscriber                                                     using the previously publish data. |
-| subId | <code>String</code> | [subscriptionId](#subscriptionId) |
-| priority | <code>Integer</code> | 0-11 where 0 is the lowest (last subscriber to get published data) priority                                                     and 11 is the highest (first subscriber to get published data).                                                     Every subscription will append to the list of priorities,                                                     except for subscriptionOptions.timing="def" since there                                                     can be only one default.                                                     If subscribing and options.priority is not set, 6 is used.                                                     This is ignored when subscriptionOptions.timing="def". |
-| timing | <code>String</code> | See [subscriptionTimings](#subscriptionTimings) |
-| context | <code>\*</code> | Specify the context of `this` |
+| Name | Type | Default | Description |
+| --- | --- | --- | --- |
+| unSubCount | <code>Integer</code> |  | Will subscribe to however many times set. When it reaches the                                                      limit, it will un-subscribe itself. Decrementing can be bypassed.                                                      See [pspObj](#pspObj) |
+| rePub | <code>Boolean</code> | <code>false</code> | If set to true and subscribing to an event and the event had                                                      published in the past, then re-publish for this subscriber                                                      using the previously publish data. |
+| subId | <code>String</code> |  | [subscriptionId](#subscriptionId) |
+| priority | <code>Number</code> | <code>0</code> | Can be any number type, excluding `NaN`.                                                      Every subscription will append to the list of priorities,                                                      except for subscriptionOptions.timing="def" since there                                                      can be only one default.                                                      If subscribing and options.priority is not set, 0 is used.                                                      This option is ignored when subscriptionOptions.timing="def". |
+| timing | <code>String</code> | <code>&#x27;pre&#x27;</code> | See [subscriptionTimings](#subscriptionTimings) |
+| context | <code>\*</code> |  | Specify the context of `this` |
 
 <a name="subscriptionTimings"></a>
 ## subscriptionTimings : <code>String</code>
