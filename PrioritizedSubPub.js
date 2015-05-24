@@ -45,10 +45,10 @@
  */
 
 /**
- * Object of arguments passed to PrioritizedPubSub.pub or PrioritizedPubSub
+ * Object or array of arguments passed to PrioritizedPubSub.pub or PrioritizedPubSub
  * for {@link subscriptionCallback} to use.
  *
- * @typedef {Object} pubArgs
+ * @typedef {Object|Array} pubArgs
  */
 
 /**
@@ -108,6 +108,12 @@
  *
  * @typedef {Object}  pspObj
  *
+ * @property {Object} subscription          General subscription data.
+ *
+ * @property {String} subscription.id       Id for the subscription that is being executed.
+ *
+ * @property {Integer} subscription.count   Number of times the subscription has executed.
+ *
  * @property {Object} CONST
  *
  * @property {String} CONST.SKIP_DEC        Prevent the subscriptionOptions.unSubCount from decrementing by
@@ -142,7 +148,7 @@
         root[ns] = factory(root);
     }
 
-}(this, function (global) {
+}(this, function (root) {
     'use strict';
 
     var PRIORITY_TYPE = ['pre', 'def', 'post']
@@ -264,8 +270,8 @@
     }
 
     _debugLog.log = function () {
-        if (global && global.console) {
-            global.console.log.apply(global.console, arguments);
+        if (root && root.console) {
+            root.console.log.apply(root.console, arguments);
         }
     };
 
@@ -407,6 +413,8 @@
 
             this.removeSubId(config.subId, false);
 
+            config.count = 0;
+
             this.subIds[config.subId] = config;
 
             if (config.timing === 'def') {
@@ -496,13 +504,17 @@
                 ) {
                     try {
                         result = subIdData.sub.apply(
-                            subIdData.context
-                            , [
-                                data
-                                , {
-                                    'CONST': {
-                                        'SKIP_DEC': SKIP_DEC
-                                      , 'UNSUB': UNSUB
+                            subIdData.context,
+                            [
+                                data,
+                                {
+                                    'subscription': {
+                                        'id'   : subId,
+                                        'count': ++subIdData.count
+                                    },
+                                    'CONST'       : {
+                                        'SKIP_DEC': SKIP_DEC,
+                                        'UNSUB'   : UNSUB
                                     }
                                 }
                             ]
