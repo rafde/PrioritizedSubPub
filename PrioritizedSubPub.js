@@ -69,7 +69,9 @@
  *
  * @typedef {Object} subscriptionOptions
  *
- * @property {Integer}                  [unSubCount]    Will subscribe to however many times set. When it reaches the
+ * @property {subscriptionCallback}     pub             {@link subscriptionCallback}
+ *
+ * @property {Number}                   [unSubCount]    Will subscribe to however many times set. When it reaches the
  *                                                      limit, it will un-subscribe itself. Decrementing can be bypassed.
  *                                                      See {@link pspObj}
  *
@@ -112,7 +114,7 @@
  *
  * @property {String} subscription.id       Id for the subscription that is being executed.
  *
- * @property {Integer} subscription.count   Number of times the subscription has executed.
+ * @property {Number} subscription.count   Number of times the subscription has executed.
  *
  * @property {Object} CONST
  *
@@ -159,9 +161,8 @@
         , _globalPSP
         ;
 
-    /* jshint ignore: start */
-    if (typeof (util = _) === 'undefined') {
-        /* jshint ignore: end */
+    /* global console */
+    if (typeof _ === 'undefined') {
         //Mini lodash/underscore
         util = {
             isUndefined: function (value) {
@@ -201,7 +202,10 @@
             },
             noop: function() {}
         };
+    } else {
+        util = _;
     }
+
 
     //I want to make sure this is a number
     function _isRealNum(value) {
@@ -255,7 +259,7 @@
         /* global console */
         var args;
         if (PrioritizedPubSub.isLogged
-            && !util.isUndefined(console)
+            && typeof console !== 'undefined'
             && util.isFunction(console.log)
         ) {
             args = util.toArray(arguments);
@@ -330,7 +334,6 @@
              },
             ...
          }
-         Possible todo is to remove extra data that isn't used from the config.
          */
         this.subIds = {};
         //used for subscribers to know if data has been published and needs to be re-published.
