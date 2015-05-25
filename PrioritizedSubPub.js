@@ -160,32 +160,26 @@
         ;
 
     /* jshint ignore: start */
-    if ((_globalPSP = typeof _)
-        && _globalPSP === 'function'
-    ) {
-        util = _;
-    }
-    /* jshint ignore: end */
-
-    if (typeof util === 'undefined') {
+    if (typeof (util = _) === 'undefined') {
+        /* jshint ignore: end */
         //Mini lodash/underscore
         util = {
             isUndefined: function (value) {
                 return typeof value === 'undefined';
-            }
-            , isObject: function (value) {
+            },
+            isObject: function (value) {
                 return value && typeof value === 'object';
-            }
-            , isString: function (value) {
+            },
+            isString: function (value) {
                 return typeof value === 'string';
-            }
-            , isFunction: function (value) {
+            },
+            isFunction: function (value) {
                 return typeof value === 'function';
-            }
-            , toArray: function (args) {
+            },
+            toArray: function (args) {
                 return Array.prototype.slice.call(args);
-            }
-            , indexOf: function (arr, val) {
+            },
+            indexOf: function (arr, val) {
                 if (arr.indexOf) {
                     return arr.indexOf(val);
                 }
@@ -204,8 +198,8 @@
                 }
 
                 return -1;
-            }
-            , noop: function() {}
+            },
+            noop: function() {}
         };
     }
 
@@ -256,24 +250,19 @@
     /**
      * @private
      * @desc private console output. Currently logs by default.
-     * @todo: think of good way to toggle logging.
      */
     function _debugLog() {
         /* global console */
         var args;
-        if (PrioritizedPubSub.isLogged) {
+        if (PrioritizedPubSub.isLogged
+            && !util.isUndefined(console)
+            && util.isFunction(console.log)
+        ) {
             args = util.toArray(arguments);
             args.unshift('PSP: ');
-
-            _debugLog.log(args);
+            console.log(args);
         }
     }
-
-    _debugLog.log = function () {
-        if (root && root.console) {
-            root.console.log.apply(root.console, arguments);
-        }
-    };
 
     /**
      * Where all subscribers and priorities are kept.
