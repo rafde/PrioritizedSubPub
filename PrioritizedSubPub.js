@@ -39,16 +39,18 @@
  *                                                This option has the highest precedence.
  *                                                Can be combined with {@link subscriptionOptions}
  *
- * @property {subscriptionId}           unSub     Required for un-subscribing an event. If set, pspOptions.pub will be ignored
+ * @property {subscriptionId}           unSub     Required for un-subscribing an event.
+ *                                                If set, pspOptions.pub will be ignored
  *
- * @property {pubArgs}                  pub       Required for publishing to subscribers. All other options have higher precedence.
+ * @property {pubArgs}                  pub       Required for publishing to subscribers.
+ *                                                All other options have higher precedence.
  */
 
 /**
- * Object of arguments passed to PrioritizedPubSub.pub or PrioritizedPubSub
+ * Object or array of arguments passed to PrioritizedPubSub.pub or PrioritizedPubSub
  * for {@link subscriptionCallback} to use.
  *
- * @typedef {Object} pubArgs
+ * @typedef {Object|Array} pubArgs
  */
 
 /**
@@ -69,7 +71,9 @@
  *
  * @typedef {Object} subscriptionOptions
  *
- * @property {Integer}                  [unSubCount]    Will subscribe to however many times set. When it reaches the
+ * @property {subscriptionCallback}     pub             {@link subscriptionCallback}
+ *
+ * @property {Number}                   [unSubCount]    Will subscribe to however many times set. When it reaches the
  *                                                      limit, it will un-subscribe itself. Decrementing can be bypassed.
  *                                                      See {@link pspObj}
  *
@@ -88,7 +92,7 @@
  *
  * @property {String}                   [timing='pre']  See {@link subscriptionTimings}
  *
- * @property {*}                        [context]       Specify the context of `this`
+ * @property {*}                        [context]       Specify the context of `this` for {@link subscriptionCallback}
  */
 
 /**
@@ -142,7 +146,7 @@
         root[ns] = factory(root);
     }
 
-}(this, function (global) {
+}(this, function (root) {
     'use strict';
 
     var PRIORITY_TYPE = ['pre', 'def', 'post']
@@ -153,33 +157,29 @@
         , _globalPSP
         ;
 
-    /* jshint ignore: start */
-    if ((_globalPSP = typeof _)
-        && _globalPSP === 'function'
-    ) {
-        util = _;
-    }
-    /* jshint ignore: end */
-
-    if (typeof util === 'undefined') {
+    /* global console */
+    if (typeof _ === 'undefined') {
         //Mini lodash/underscore
         util = {
             isUndefined: function (value) {
                 return typeof value === 'undefined';
-            }
-            , isObject: function (value) {
+            },
+            isObject: function (value) {
                 return value && typeof value === 'object';
-            }
-            , isString: function (value) {
+            },
+            isString: function (value) {
                 return typeof value === 'string';
-            }
-            , isFunction: function (value) {
+            },
+            isFunction: function (value) {
                 return typeof value === 'function';
-            }
-            , toArray: function (args) {
+            },
+            isArray: function (value) {
+                return Object.prototype.toString.call(value) === "[object Array]";
+            },
+            toArray: function (args) {
                 return Array.prototype.slice.call(args);
-            }
-            , indexOf: function (arr, val) {
+            },
+            indexOf: function (arr, val) {
                 if (arr.indexOf) {
                     return arr.indexOf(val);
                 }
@@ -198,10 +198,13 @@
                 }
 
                 return -1;
-            }
-            , noop: function() {}
+            },
+            noop: function() {}
         };
+    } else {
+        util = _;
     }
+
 
     //I want to make sure this is a number
     function _isRealNum(value) {
@@ -250,24 +253,19 @@
     /**
      * @private
      * @desc private console output. Currently logs by default.
-     * @todo: think of good way to toggle logging.
      */
     function _debugLog() {
         /* global console */
         var args;
-        if (PrioritizedPubSub.isLogged) {
+        if (PrioritizedPubSub.isLogged
+            && typeof console !== 'undefined'
+            && util.isFunction(console.log)
+        ) {
             args = util.toArray(arguments);
             args.unshift('PSP: ');
-
-            _debugLog.log(args);
+            console.log(args);
         }
     }
-
-    _debugLog.log = function () {
-        if (global && global.console) {
-            global.console.log.apply(global.console, arguments);
-        }
-    };
 
     /**
      * Where all subscribers and priorities are kept.
@@ -335,7 +333,6 @@
              },
             ...
          }
-         Possible todo is to remove extra data that isn't used from the config.
          */
         this.subIds = {};
         //used for subscribers to know if data has been published and needs to be re-published.
@@ -406,6 +403,8 @@
                 priority;
 
             this.removeSubId(config.subId, false);
+
+            config.count = 0;
 
             this.subIds[config.subId] = config;
 
@@ -496,16 +495,19 @@
                 ) {
                     try {
                         result = subIdData.sub.apply(
-                            subIdData.context
-                            , [
-                                data
-                                , {
-                                    'CONST': {
-                                        'SKIP_DEC': SKIP_DEC
-                                      , 'UNSUB': UNSUB
+                            subIdData.context,
+                            data.concat([
+                                {
+                                    'subscription': {
+                                        'id'   : subId,
+                                        'count': ++subIdData.count
+                                    },
+                                    'CONST'       : {
+                                        'SKIP_DEC': SKIP_DEC,
+                                        'UNSUB'   : UNSUB
                                     }
                                 }
-                            ]
+                            ])
                         );
                     } catch (e) {
                         _debugLog(e);
@@ -558,7 +560,7 @@
 
                 } else if ((pList = priorities.list) && (pidx = pList.length)) {
 
-                    while( (pNum = pList[--pidx]) === 0 ||  pNum) {
+                    while( (pNum = pList[--pidx]) === 0 || pNum) {
                         priority = priorities.table[pNum];
 
                         if (priority && priority.length) {
@@ -622,7 +624,9 @@
          * @param {Object} [args]
          */
         'pub': function (eventName, args) {
-            args = util.isObject(args) ? args : {};
+            args = util.isArray(args) ?
+                args :
+                util.isObject(args) ? [args] : [{}];
 
             var event = this.getSub(eventName);
 
