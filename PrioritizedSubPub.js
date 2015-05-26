@@ -39,9 +39,11 @@
  *                                                This option has the highest precedence.
  *                                                Can be combined with {@link subscriptionOptions}
  *
- * @property {subscriptionId}           unSub     Required for un-subscribing an event. If set, pspOptions.pub will be ignored
+ * @property {subscriptionId}           unSub     Required for un-subscribing an event.
+ *                                                If set, pspOptions.pub will be ignored
  *
- * @property {pubArgs}                  pub       Required for publishing to subscribers. All other options have higher precedence.
+ * @property {pubArgs}                  pub       Required for publishing to subscribers.
+ *                                                All other options have higher precedence.
  */
 
 /**
@@ -90,7 +92,7 @@
  *
  * @property {String}                   [timing='pre']  See {@link subscriptionTimings}
  *
- * @property {*}                        [context]       Specify the context of `this`
+ * @property {*}                        [context]       Specify the context of `this` for {@link subscriptionCallback}
  */
 
 /**
@@ -106,7 +108,8 @@
  */
 
 /**
- * Object passed to {@link subscriptionCallback} as a second parameter.
+ * Object passed to {@link subscriptionCallback} as the last parameter.
+ * If argument length is unknown, you can always get it using `arguments[arguments.length-1]`.
  *
  * @typedef {Object}  pspObj
  *
@@ -114,14 +117,14 @@
  *
  * @property {String} subscription.id       Id for the subscription that is being executed.
  *
- * @property {Number} subscription.count   Number of times the subscription has executed.
+ * @property {Number} subscription.count    Number of times the subscription has executed.
  *
  * @property {Object} CONST
  *
  * @property {String} CONST.SKIP_DEC        Prevent the subscriptionOptions.unSubCount from decrementing by
  *                                          returning from {@link subscriptionCallback}
  *
- * @property {String} CONST.UNSUB           Used to un-subscribe by returning from (@link subscriptionCallback}.
+ * @property {String} CONST.UNSUB           Used to un-subscribe by returning from {@link subscriptionCallback}.
  */
 
 /**
@@ -176,6 +179,9 @@
             },
             isFunction: function (value) {
                 return typeof value === 'function';
+            },
+            isArray: function (value) {
+                return Object.prototype.toString.call(value) === "[object Array]";
             },
             toArray: function (args) {
                 return Array.prototype.slice.call(args);
@@ -497,8 +503,7 @@
                     try {
                         result = subIdData.sub.apply(
                             subIdData.context,
-                            [
-                                data,
+                            data.concat([
                                 {
                                     'subscription': {
                                         'id'   : subId,
@@ -509,7 +514,7 @@
                                         'UNSUB'   : UNSUB
                                     }
                                 }
-                            ]
+                            ])
                         );
                     } catch (e) {
                         _debugLog(e);
@@ -562,7 +567,7 @@
 
                 } else if ((pList = priorities.list) && (pidx = pList.length)) {
 
-                    while( (pNum = pList[--pidx]) === 0 ||  pNum) {
+                    while( (pNum = pList[--pidx]) === 0 || pNum) {
                         priority = priorities.table[pNum];
 
                         if (priority && priority.length) {
@@ -626,7 +631,9 @@
          * @param {Object} [args]
          */
         'pub': function (eventName, args) {
-            args = util.isObject(args) ? args : {};
+            args = util.isArray(args) ?
+                args :
+                util.isObject(args) ? [args] : [{}];
 
             var event = this.getSub(eventName);
 

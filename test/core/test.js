@@ -837,4 +837,29 @@ describe('PrioritizedSubPub', function () {
         testPSP(testName);
         expect(testData[testName]).toBe(-13);
     });
+
+    it('should publish using an array', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num;
+
+        testData[testName] = 0;
+
+        testPSP(
+            testName,
+            {
+                'sub': function (val1, val2) {
+                    testData[testName] = val1 + val2;
+                },
+                priority: -1111
+            }
+        );
+
+        testPSP.pub(testName, [1,1]);
+        expect(testData[testName]).toBe(2);
+
+        testPSP(testName, {pub:[1,3]});
+
+        expect(testData[testName]).toBe(4);
+    });
 });
