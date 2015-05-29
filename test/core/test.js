@@ -862,4 +862,24 @@ describe('PrioritizedSubPub', function () {
 
         expect(testData[testName]).toBe(4);
     });
+
+    it('should publish using an array of events', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num;
+
+        testData[testName] = {};
+
+        testPSP.sub('test1', function () {
+            testData[testName].test1 = 1;
+        })
+        .sub('test2', function () {
+            testData[testName].test2 = 2;
+        });
+
+        testPSP(['test1', 'test2']);
+
+        expect(testData[testName].test1).toBe(1);
+        expect(testData[testName].test2).toBe(2);
+    });
 });
