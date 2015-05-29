@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
 <html>
     <head lang="en">
         <meta charset="UTF-8">
@@ -7,7 +8,11 @@
     <body>
         <script src="../../PrioritizedSubPub.js"></script>
         <script>
-            window.testPSP = (function (win) {
+            PrioritizedSubPub.sub('test', function (arg) {
+                document.body.innerHTML = 'pub worked? ' + arg.hello;
+            });
+            PrioritizedSubPub.pub('test', {hello:'there'});
+            /*window.testPSP = (function (win) {
                 var testPSP = PrioritizedSubPub.getEventProxy('testPSP')
                     ;
 
@@ -36,7 +41,7 @@
                 });
 
                 return testPSP;
-            }(window));
+            }(window));*/
         </script>
     </body>
 </html>

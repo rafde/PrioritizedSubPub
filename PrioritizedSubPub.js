@@ -138,9 +138,11 @@
  *
  * @callback subscriptionCallback
  *
- * @param {pubArgs} args
+ * @type function
  *
- * @param {pspObj}  pspObj
+ * @param {...*} args      usually from {@link pubArgs}
+ *
+ * @param {pspObj}  pspObj last parameter passed.
  */
 
 (function (root, factory) {
@@ -216,11 +218,11 @@
         util = _;
     }
 
-    function tryFunc(cb, args, context){
+    function tryFunc(cb, args, context) {
         var val;
-        try{
+        try {
             val = cb.apply(context, args);
-        }catch(e){
+        } catch (e) {
             _debugLog(e);
         }
         return val;
@@ -834,8 +836,8 @@
 
         publicPSP.getEventPubCallback = function (eventName) {
 
-            return function (args) {
-                publicPSP.pub(eventName, args);
+            return function () {
+                publicPSP.pub(eventName, util.toArray(arguments));
             };
         };
 
@@ -930,7 +932,7 @@
      * @static
      * @memberof PrioritizedPubSub
      * @param {eventName}   eventName
-     * @returns {function}
+     * @returns {subscriptionCallback}
      */
     PrioritizedPubSub.getEventPubCallback = _globalPSP.getEventPubCallback;
 

@@ -882,4 +882,22 @@ describe('PrioritizedSubPub', function () {
         expect(testData[testName].test1).toBe(1);
         expect(testData[testName].test2).toBe(2);
     });
+
+    it('should pass an array to getEventPubCallback', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num,
+            cb = testPSP.getEventPubCallback(testName);
+
+        testData[testName] = {};
+
+        testPSP.sub(testName, function (a, b, c, obj) {
+            testData[testName] = a + b + c + obj.subscription.count;
+
+        });
+
+        cb(1,2,3);
+
+        expect(testData[testName]).toBe(7);
+    });
 });
