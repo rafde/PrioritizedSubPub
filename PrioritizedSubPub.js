@@ -233,6 +233,18 @@
         return typeof value === 'number' && !isNaN(value);
     }
 
+    function _isUndefinedOrTrue(value){
+        return util.isUndefined(value) || value === true;
+    }
+
+    function _stringToArray(value){
+        if(util.isArray(value)) {
+            return value;
+        } else if(util.isString(value)){
+            return [value];
+        }
+    }
+
     function _bInsert(arr, val) {
         var leftIdx = 0,
             rightIdx = arr.length,
@@ -483,7 +495,7 @@
                     priority.splice(indexOf, 1);
                 }
 
-                if (util.isUndefined(untrack) || untrack === true) {
+                if (_isUndefinedOrTrue(untrack)) {
                     delete this.subIds[subId];
                     _debugLog(this.eventName + ' is completely erasing ' + subId);
                 }
@@ -504,12 +516,10 @@
             if (
                 util.isString(subId)
                 && (subIdData = this.subIds[subId])
-                && util.isFunction(subIdData.sub)
             ) {
-                isCount = _isRealNum(subIdData.unPubCount);
 
                 if (
-                    !isCount
+                    !(isCount = _isRealNum(subIdData.unPubCount))
                     || (
                         isCount
                         && subIdData.unPubCount > 0
@@ -558,7 +568,6 @@
                 priority,
                 sidx,
                 subId,
-                result,
                 pList,
                 pNum;
 
@@ -588,18 +597,17 @@
                             while ((subId = priority[sidx])) {
 
                                 _debugLog(
-                                    this.eventName + 'Publishing subId ' + subId + ' TIMING ' + timing
-                                    + ' PRIORITY ' + pidx
+                                    this.eventName
+                                    + 'Publishing subId '
+                                    + subId
+                                    + ' TIMING '
+                                    + timing
+                                    + ' PRIORITY '
+                                    + pidx
                                 );
 
-                                switch ((result = this.publishToSubscriber(subId, args))) {
-                                    case false:
-                                        //if false returned, then the subscription was removed
-                                        // and the current index is still relevant.
-                                        break;
-                                    default:
-                                        sidx++;
-                                        break;
+                                if(this.publishToSubscriber(subId, args)){
+                                    sidx++;
                                 }
                             }
                         }
@@ -643,23 +651,22 @@
          * @param {object} [args]
          */
         'pub': function (eventName, args) {
-            args = util.isArray(args) ?
-                args :
-                util.isObject(args) ? [args] : [{}];
-
-            var eventArr,
+            var eventArr = _stringToArray(eventName),
                 event,
                 i = 0;
 
-            if(util.isArray(eventName)) {
-                eventArr = eventName;
-            } else if(util.isString(eventName)){
-                eventArr = [eventName];
-            } else {
+            if(!util.isArray(eventArr)) {
                 return;
             }
 
+            args = util.isArray(args)
+                   ? args
+                   : util.isObject(args)
+                     ? [args]
+                     : [{}];
+
             event = eventArr[i];
+
             do{
                 if(util.isString(event)) {
                     event = this.getSub(event);
@@ -683,9 +690,15 @@
                 temp;
 
             if (
-                util.isString(eventName)
+                   util.isString(eventName)
                 && config
-                && (configType === 'object' || isFunction)
+                && (
+                    isFunction
+                    || (
+                           configType === 'object'
+                        && util.isFunction(config.sub)
+                    )
+                )
             ) {
 
                 if (isFunction) {
@@ -701,22 +714,13 @@
                     config.subId = 'pr-' + Math.ceil(Math.random() * 10000000);
                 }
 
-                temp = parseInt(config.priority, 10);
-                if (!_isRealNum(temp)) {
-                    temp = 0;
-                }
+                config.priority = _isRealNum(temp = Number(config.priority))
+                                  ? temp
+                                  : 0;
 
-                config.priority = temp;
-
-                temp = util.indexOf(PRIORITY_TYPE, config.timing);
-
-                if (temp < 0) {
-                    temp = PRIORITY_TYPE[0]; //default config timing is pre
-                } else {
-                    temp = PRIORITY_TYPE[temp];
-                }
-
-                config.timing = temp;
+                config.timing = (temp = util.indexOf(PRIORITY_TYPE, config.timing)) < 0
+                                ? PRIORITY_TYPE[0]
+                                : PRIORITY_TYPE[temp];
 
                 event.replaceSubId(config);
 
@@ -736,16 +740,23 @@
         /**
          *
          * @param {string} eventName
-         * @param {string} subId
+         * @param {string|Array} subId
          */
         'unSub': function (eventName, subId) {
+            var event,
+                subIdArr,
+                sI,
+                i = 0;
 
             if (util.isString(eventName)){
-                var event = this.getSub(eventName);
+                subIdArr = _stringToArray(subId);
 
-                if (event) {
-                    _debugLog(this.pspName + 'un-subscribing subId ' + subId + ' from ' + eventName);
-                    event.removeSubId(subId);
+                if (util.isArray(subIdArr) && (event = this.getSub(eventName, false))) {
+                    sI = subIdArr[i];
+                    do{
+                        _debugLog(this.pspName + 'un-subscribing subId ' + sI + ' from ' + eventName);
+                        event.removeSubId(sI);
+                    } while(sI = subIdArr[++i])
                 }
             }
         },
@@ -753,17 +764,17 @@
         /**
          * Return or create new Subscription.
          * @private
-         * @param  {string} subName
+         * @param {string}  subName
+         * @param {boolean} [isCreating]
          * @return {Subscriptions}
          */
-        'getSub': function (subName) {
+        'getSub': function (subName, isCreating) {
             var event = this.subList[subName];
 
-            if (!event) {
+            if (!event && _isUndefinedOrTrue(isCreating)) {
                 _debugLog(this.pspName + 'Creating new subscription: ' + subName);
                 this.subList[subName] = event = new Subscriptions(subName, this.pspName);
             }
-
             return event;
         },
 
@@ -774,7 +785,8 @@
          */
         'exec': function (eventName, options) {
             var optionsType,
-                isObj;
+                isObj,
+                temp;
 
             options = options || {};
 
@@ -792,8 +804,9 @@
                         _debugLog(this.pspName + 'Subscription definition was invalid and was not registered');
                     }
                 } else if (isObj) {
-                    if (util.isString(options.unSub)) {
-                        this.unSub(eventName, options.unSub);
+                    temp = options.unSub;
+                    if (util.isString(temp) || util.isArray(temp)) {
+                        this.unSub(eventName, temp);
                     } else { //publish to eventName
                         options = options.pub || options;
                         this.pub(eventName, options);
