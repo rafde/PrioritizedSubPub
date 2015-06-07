@@ -693,7 +693,7 @@ describe('PrioritizedSubPub', function () {
         testPSP(
             testName,
             {
-                'unPubCount': 3,
+                'unSubCount': 3,
                 'sub': function () {
                     testData[testName]++;
                 }
@@ -718,7 +718,7 @@ describe('PrioritizedSubPub', function () {
         testPSP(
             testName,
             {
-                'unPubCount': 3,
+                'unSubCount': 3,
                 'sub': function (args, pspOpts) {
                     testData[testName]++;
 
@@ -739,7 +739,7 @@ describe('PrioritizedSubPub', function () {
         expect(testData[testName]).toBe(5);
     });
 
-    it('should not publish of unPubCount is 0', function () {
+    it('should not publish if unSubCount is 0', function () {
         var num = ++testNumber,
             testData = {},
             testName = 'test' + num;
@@ -749,7 +749,7 @@ describe('PrioritizedSubPub', function () {
         testPSP(
             testName,
             {
-                'unPubCount': 0,
+                'unSubCount': 0,
                 'sub': function () {
                     testData[testName]++;
                 }
@@ -760,7 +760,7 @@ describe('PrioritizedSubPub', function () {
         expect(testData[testName]).toBe(0);
     });
 
-    it('should not publish of unPubCount is 1 but rePub is true', function () {
+    it('should not publish if unSubCount is 1 but rePub is true', function () {
         var num = ++testNumber,
             testData = {},
             testName = 'test' + num;
@@ -770,7 +770,7 @@ describe('PrioritizedSubPub', function () {
         testPSP(
             testName,
             {
-                'unPubCount': 1,
+                'unSubCount': 1,
                 'sub': function () {
                     testData[testName]++;
                 },
@@ -899,5 +899,79 @@ describe('PrioritizedSubPub', function () {
         cb(1,2,3);
 
         expect(testData[testName]).toBe(7);
+    });
+
+    it('should subscribe test1, test2, testA and unsub /^test\\d+/', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num;
+
+        testData[testName] = {};
+
+        testPSP.sub(testName, {
+            subId: 'test2',
+            sub: function () {
+                testData[testName].hi = 1;
+            },
+            priority: 10
+        });
+
+        testPSP.sub(testName, {
+            subId: 'testA',
+            sub: function () {
+                testData[testName].ho = 1;
+            }
+        });
+
+        testPSP.sub(testName, {
+            subId: 'test1',
+            sub: function () {
+                testData[testName].hum = 1;
+            },
+            priority: -10
+        });
+
+        testPSP.unSub(testName, /^test\d+/);
+
+        testPSP.pub(testName);
+
+        expect(testData[testName]).toEqual({ho:1});
+    });
+
+    it('should subscribe test1, test2, testA and unsub ["test2", "test1"]', function () {
+        var num = ++testNumber,
+            testData = {},
+            testName = 'test' + num;
+
+        testData[testName] = {};
+
+        testPSP.sub(testName, {
+            subId: 'test2',
+            sub: function () {
+                testData[testName].hi = 1;
+            },
+            priority: 10
+        });
+
+        testPSP.sub(testName, {
+            subId: 'testA',
+            sub: function () {
+                testData[testName].ho = 3;
+            }
+        });
+
+        testPSP.sub(testName, {
+            subId: 'test1',
+            sub: function () {
+                testData[testName].hum = 1;
+            },
+            priority: -10
+        });
+
+        testPSP.unSub(testName, ['test1', 'test2']);
+
+        testPSP.pub(testName);
+
+        expect(testData[testName]).toEqual({ho:3});
     });
 });

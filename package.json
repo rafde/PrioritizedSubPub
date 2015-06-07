@@ -1,7 +1,6 @@
 {
   "name": "PrioritizedSubPub",
   "version": "0.10.0",
-  "description": "",
   "main": "PrioritizedSubPub.js",
   "devDependencies": {
     "jaguarjs-jsdoc": "0.0.1",
@@ -12,7 +11,7 @@
   "scripts": {
     "jsdoc": "jsdoc -c jsdoc-config.json",
     "jsdoc-to-markdown": "jsdoc2md PrioritizedSubPub.js > README.md",
-    "uglify-js": "uglifyjs PrioritizedSubPub.js -c -m -o PrioritizedSubPub.min.js",
+    "uglify-js": "uglifyjs PrioritizedSubPub.js -o PrioritizedSubPub.min.js -m -c unsafe,comparisons,sequences,dead_code,conditionals,booleans,loops,unused,hoist_funs,if_return,join_vars,cascade",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,8 +20,31 @@
   },
   "author": "Rafael De Leon",
   "license": "MIT",
-  "readmeFilename": "README.md",
   "bugs": {
     "url": "https://github.com/rafde/PrioritizedSubPub/issues"
-  }
+  },
+  "homepage": "https://github.com/rafde/PrioritizedSubPub",
+  "directories": {
+    "test": "test"
+  },
+  "keywords": [
+    "pub/sub",
+    "publish/subscribe",
+    "publish",
+    "subscribe",
+    "event",
+    "events",
+    "emit",
+    "emitter",
+    "message",
+    "messaging",
+    "receiver",
+    "queue",
+    "priority",
+    "prioritized",
+    "order",
+    "topic",
+    "decouple",
+    "util"
+  ]
 }
