@@ -1,7 +1,9 @@
 /**
- * @classdesc Constructs a new PrioritizedPubSub
+ * Constructs a new PrioritizedPubSub
  *
- * @class PrioritizedPubSub
+ * @name PrioritizedPubSub
+ *
+ * @constructor
  *
  * @param   {string}                                subNameSpace    Name of new PrioritizedPubSub
  *
@@ -15,9 +17,9 @@
  *
  * @function PrioritizedPubSub
  *
- * @param   {eventName|eventName[]}                      eventName
+ * @param   {eventName|eventName[]}            eventName
  *
- * @param   {pspOptions|subscriptionCallback|function}  [options]
+ * @param   {pspOptions|subscriptionCallback}  [options]
  *
  * @return {PrioritizedPubSub}
  */
@@ -668,13 +670,14 @@
         pub: function (eventName, args, pubOptions) {
             var eventArr = _stringToArray(eventName),
                 event,
+                params,
                 i = 0;
 
             if(!_isArray(eventArr)) {
                 return;
             }
 
-            args = _isArray(args)
+            params = _isArray(args)
                    ? args
                    : _isObject(args)
                      ? [args]
@@ -686,7 +689,7 @@
                 if(_isString(event)) {
                     event = this.getSub(event);
                     if (event) {
-                        event.publish(args, pubOptions);
+                        event.publish(params, pubOptions);
                     }
                 }
             } while(event = eventName[++i])
@@ -703,6 +706,7 @@
                 configType = typeof config,
                 isFn = (configType === 'function'),
                 subscriptionObj = {},
+                eventObj,
                 temp;
 
             if (
@@ -720,6 +724,44 @@
                     )
                 )
             ) {
+
+                /*do{
+                    subscriptionObj = {};
+                    if(temp){
+                        subscriptionObj.uSC = temp;
+                    }
+
+                    //callback
+                    subscriptionObj.s = isFn
+                        ? config
+                        : config.sub;
+                    //id
+                    subscriptionObj.sI = _isString(temp = config.subId)
+                        ? temp
+                        //create random id if subId is defined for config tracking.
+                        : 'pr-' + Math.ceil(Math.random() * 10000000);
+                    //priority
+                    subscriptionObj.p = _isRealNum(temp = Number(config.priority))
+                        ? temp
+                        : 0;
+                    //timing
+                    subscriptionObj.t = (temp = _indexOf(PRIORITY_TYPE, config.timing)) < 0
+                        ? PRIORITY_TYPE[0]
+                        : PRIORITY_TYPE[temp];
+
+                    //optional context
+                    if(!_isUndefined(temp = config.context)){
+                        subscriptionObj.ct = temp;
+                    }
+
+                    event = this.getSub(eventName);
+                    event.reSI(subscriptionObj);
+
+                    if (config.rePub && event.hP) {
+                        _debugLog(this.pN + eventName + ' event was published. Re-publish subId ' + subscriptionObj.sI);
+                        event.p2S(subscriptionObj.sI);
+                    }
+                } while();*/
                 //optional unSubCount
                 if(temp){
                     subscriptionObj.uSC = temp;
@@ -759,8 +801,7 @@
                 return true;
             }
 
-            _debugLog(this.pN + eventName + ' was not given a legitimate config');
-
+            _debugLog(this.pN + eventName + ' was not given a legitimate config.');
             return null;
         },
 
@@ -818,23 +859,27 @@
         exec: function (eventName, options) {
             var optionsType,
                 isObj,
-                temp;
+                temp = _isObject(eventName) && !_isArray(eventName);
 
-            options = options || {};
-
-            if (options && _isString(eventName)) {
+            if (temp
+                || (
+                    (options = options || {})
+                    && _isString(eventName)
+                )
+            ) {
                 isObj = (optionsType = typeof options) === 'object';
                 //subscribe using default config
                 if (
-                    optionsType === 'function'
+                    temp
                     || (
-                        isObj
-                        && _isFunction(options.sub)
+                        optionsType === 'function'
+                        || (
+                            isObj
+                            && _isFunction(options.sub)
+                        )
                     )
                 ) {
-                    if (this.sub(eventName, options) === null) {
-                        _debugLog(this.pN + 'Subscription definition was invalid and was not registered');
-                    }
+                    this.sub(eventName, options);
                 } else if (isObj) {
                     temp = options.unSub;
                     if (_isString(temp) || _isArray(temp) || _isRegExp(temp)) {
@@ -911,7 +956,7 @@
 
     function PrioritizedPubSub(subNameSpace) {
         /* global window */
-        if (_isUndefined(this) || this === window) {
+        if (_isObject(subNameSpace) || _isUndefined(this) || this === window) {
 
             _globalPSP.apply(
                 _globalPSP,
