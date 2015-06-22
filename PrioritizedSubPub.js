@@ -174,33 +174,6 @@
         , UNSUB = 'unsub'
         , SKIP_DEC = 'skip_dec'
         , _globalPSP //host global usage for PSP
-        , _toString = function (value) {
-            return _toString.prototype.toString.call(value);
-        }
-        , _isArray = function (value) {
-            return _toString(value) === '[object Array]';
-        }
-        , _isFunction = function (value) {
-            return typeof value === 'function';
-        }
-        , _isObject = function (value) {
-            return value && typeof value === 'object';
-        }
-        , _isTrueObject = function(value) {
-            return _isObject(value) && _toString(value) === '[object Object]';
-        }
-        , _isRegExp = function (value) {
-            return _toString(value) === '[object RegExp]';
-        }
-        , _isString = function (value) {
-            return typeof value === 'string';
-        }
-        , _isUndefined = function (value) {
-            return typeof value === 'undefined';
-        }
-        , _toArray = function (args) {
-            return Array.prototype.slice.call(args);
-        }
         , _indexOf = function (arr, val) {
             if (arr.indexOf) {
                 return arr.indexOf(val);
@@ -224,7 +197,52 @@
         _indexOf     = _.indexOf;
     }
 
-    function tryFunc(cb, args, context) {
+    function _isArray(value) {
+        return _toString(value) === '[object Array]';
+    }
+
+    function _isFunction(value) {
+        return typeof value === 'function';
+    }
+
+    function _isRegExp(value) {
+        return _toString(value) === '[object RegExp]';
+    }
+
+    function _isString(value) {
+        return typeof value === 'string';
+    }
+
+    function _isObject(value) {
+        return value && typeof value === 'object';
+    }
+
+    function _isTrueObject(value) {
+        return _isObject(value) && _toString(value) === '[object Object]';
+    }
+
+    function _isUndefined(value) {
+        return typeof value === 'undefined';
+    }
+
+    function _isUndefinedOrTrue(value){
+        return _isUndefined(value) || value === true;
+    }
+
+    //I want to make sure this is a number
+    function _isRealNum(value) {
+        return typeof value === 'number' && !isNaN(value);
+    }
+
+    function _toArray(args) {
+        return Array.prototype.slice.call(args);
+    }
+
+    function _toString(value) {
+        return _toString.prototype.toString.call(value);
+    }
+
+    function _tryFunc(cb, args, context) {
         var val;
         try {
             val = cb.apply(context, args);
@@ -234,13 +252,8 @@
         return val;
     }
 
-    //I want to make sure this is a number
-    function _isRealNum(value) {
-        return typeof value === 'number' && !isNaN(value);
-    }
-
-    function _isUndefinedOrTrue(value){
-        return _isUndefined(value) || value === true;
+    function _getObjectIfValueNotObject(value) {
+        return _isTrueObject(value) ? value : {};
     }
 
     function _stringToArray(value){
@@ -292,10 +305,6 @@
         return leftIdx;
     }
 
-    /**
-     * @private
-     * @desc private console output. Currently logs by default.
-     */
     function _debugLog() {
         /* global console */
         var args;
@@ -527,8 +536,10 @@
                 }
             }
         },
-        p2S: function (subId, data/*, options*/) {
-            var subIdData,
+        p2S: function (subId, data, pubOptions) {
+            var options = _getObjectIfValueNotObject(pubOptions),
+                publishContext = options.context,
+                subIdData,
                 isCount,
                 result;
 
@@ -546,24 +557,25 @@
                         && subIdData.uSC > 0
                     )
                 ) {
-                    result = tryFunc(
+                    result = _tryFunc(
                         subIdData.s,
                         data.concat([
                             {
                                 subscription: {
-                                    id   : subId,
+                                    id: subId,
                                     count: ++subIdData.c,
                                     context: subIdData.ct
                                 },
-                                publisher:{
+                                publisher: {
+                                    context: publishContext
                                 },
-                                CONST       : {
+                                CONST: {
                                     SKIP_DEC: SKIP_DEC,
-                                    UNSUB   : UNSUB
+                                    UNSUB: UNSUB
                                 }
                             }
                         ]),
-                        subIdData.ct
+                        subIdData.ct || publishContext
                     )
                 }
 
@@ -575,7 +587,12 @@
                         && --subIdData.uSC <= 0
                     )
                 ) {
-                    _debugLog(this.eN + 'Subscriber subId ' + subId + ' removed itself. Result:', result);
+                    _debugLog(
+                        this.eN
+                        + 'Subscriber subId '
+                        + subId + ' removed itself. Result:',
+                        result
+                    );
                     this.rmSI(subId);
                     return false;
                 }
@@ -609,12 +626,21 @@
                         this.p2S(priorities, args, options);
                     }
 
-                } else if ((pList = priorities.q) && (pidx = pList.length)) {
+                } else if (
+                    (pList = priorities.q)
+                    && (pidx = pList.length)
+                ) {
 
-                    while( (pNum = pList[--pidx]) === 0 || pNum) {
+                    while(
+                        (pNum = pList[--pidx]) === 0
+                        || pNum
+                    ) {
                         priority = priorities.t[pNum];
 
-                        if (priority && priority.length) {
+                        if (
+                            priority
+                            && priority.length
+                        ) {
                             sidx = 0;
 
                             while ((subId = priority[sidx])) {
@@ -704,7 +730,6 @@
          *
          * @param {string|subscriptionConfig}                           eventName
          * @param {function|subscriptionOptions|subscriptionOptions[]}  config
-         * @returns {boolean|null}
          */
         sub: function (eventName, config) {
             var event = config,
@@ -724,7 +749,7 @@
                     _isArray(event)
                     || _isFunction(event)
                     || (
-                        _isTrueObject(event)
+                           _isTrueObject(event)
                         && _isFunction(event.sub)
                     )
                 )
@@ -741,7 +766,10 @@
                         &&(
                             _isArray(subArr = events[event])
                             || ( //Normalize into an array
-                                (_isTrueObject(subArr) || _isFunction(subArr))
+                                (
+                                    _isTrueObject(subArr)
+                                 || _isFunction(subArr)
+                                )
                                 && (subArr = [subArr])
                             )
                         )
@@ -753,7 +781,7 @@
                             if (
                                 (isFn = _isFunction(subscription))
                                 || (
-                                    _isTrueObject(subscription)
+                                       _isTrueObject(subscription)
                                     && _isFunction(subscription.sub)
                                     && (
                                         _isUndefined(temp = subscription.unSubCount)
@@ -865,15 +893,20 @@
             if (!event
                 && _isUndefinedOrTrue(isCreating)
             ) {
-                _debugLog(this.pN + 'Creating new subscription: ' + subName);
+                _debugLog(
+                    this.pN
+                    + 'Creating new subscription: '
+                    + subName
+                );
                 this.sL[subName] = event = new Subscriptions(subName, this.pN);
             }
             return event;
         },
 
         /**
-         * Determines what type of action to do based on what the options are.
-         * @param {string}                              eventName
+         * Determines what type of action to do
+         * based on what the options are.
+         * @param {string|Array|subscriptionConfig}     eventName
          * @param {object|function|subscriptionOptions} options
          */
         exec: function (eventName, options) {
@@ -894,23 +927,36 @@
                     || (
                         optionsType === 'function'
                         || (
-                            isObj
+                               isObj
                             && _isFunction(options.sub)
                         )
                     )
                 ) {
+
                     this.sub(eventName, options);
+
                 } else if (isObj) {
+
                     temp = options.unSub;
-                    if (_isString(temp) || _isArray(temp) || _isRegExp(temp)) {
+
+                    if (_isString(temp)
+                        || _isArray(temp)
+                        || _isRegExp(temp)
+                    ) {
+
                         this.unSub(eventName, temp);
+
                     } else { //publish to eventName
+
                         options = options.pub || options;
                         this.pub(eventName, options);
+
                     }
                 }
             } else if (_isArray(eventName)) {
+
                 this.pub(eventName, options);
+
             }
         }
     };
@@ -944,10 +990,21 @@
             return this;
         };
 
-        publicPSP.getEventPubCallback = function (eventName) {
-
+        publicPSP.getEventPubCallback = function (eventName, pubConfig) {
+            var context;
+            if (_isTrueObject(pubConfig)) {
+                if(!_isUndefined(pubConfig.context)) {
+                    context = pubConfig.context
+                }
+            }
             return function () {
-                publicPSP.pub(eventName, _toArray(arguments));
+                publicPSP.pub(
+                    eventName,
+                    _toArray(arguments),
+                    {
+                        context : (_isUndefined(context) ? context : this)
+                    }
+                );
             };
         };
 
