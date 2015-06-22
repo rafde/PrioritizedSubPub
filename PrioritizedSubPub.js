@@ -732,7 +732,7 @@
          * @param {function|subscriptionOptions|subscriptionOptions[]}  config
          */
         sub: function (eventName, config) {
-            var event = config,
+            var _eventName = config,
                 events = eventName,
                 index = 0,
                 subscriptionObj = {},
@@ -746,25 +746,25 @@
             if (
                 _isString(eventName)
                 && (
-                    _isArray(event)
-                    || _isFunction(event)
+                    _isArray(_eventName)
+                    || _isFunction(_eventName)
                     || (
-                           _isTrueObject(event)
-                        && _isFunction(event.sub)
+                           _isTrueObject(_eventName)
+                        && _isFunction(_eventName.sub)
                     )
                 )
             ) {
-                (events = {})[eventName] = event;
+                (events = {})[eventName] = _eventName;
             }
 
             if (_isTrueObject(events)) {
 
-                for (event in events) {
+                for (_eventName in events) {
 
                     if (
-                        events.hasOwnProperty(event)
+                        events.hasOwnProperty(_eventName)
                         &&(
-                            _isArray(subArr = events[event])
+                            _isArray(subArr = events[_eventName])
                             || ( //Normalize into an array
                                 (
                                     _isTrueObject(subArr)
@@ -815,13 +815,12 @@
                                     ? PRIORITY_TYPE[0]
                                     : PRIORITY_TYPE[temp];
 
-
                                 //optional context
                                 if(!_isUndefined(temp = subscription.context)){
                                     subscriptionObj.ct = temp;
                                 }
 
-                                eventObj = this.getSub(event);
+                                eventObj = this.getSub(_eventName);
                                 eventObj.reSI(subscriptionObj);
 
                                 if (config.rePub && eventObj.hP) {
@@ -833,11 +832,13 @@
                                     );
                                     eventObj.p2S(subscriptionObj.sI);
                                 }
+
+                                subscriptionObj = {};
                             }
                         } while ((subscription = subArr[++index]));
 
                         index = 0;
-                        subscriptionObj = {};
+
                     }
                 }
             }
@@ -862,6 +863,7 @@
                     event.rmSIR(subId);
                     return;
                 }
+
                 subIdArr = _stringToArray(subId);
 
                 if (_isArray(subIdArr)) {
@@ -878,6 +880,17 @@
                     } while(sI = subIdArr[++i])
                 }
             }
+        },
+
+        /**
+         * Find out if the subId already exist as a subscription
+         * @TODO FINISH
+         * @param {eventName} subName
+         * @param {subId|subId[]|RegExp} subId
+         * @returns {boolean|object}
+         */
+        hasSub: function (subName, subId){
+            return true || [];
         },
 
         /**
@@ -913,6 +926,8 @@
             var optionsType,
                 isObj,
                 temp = _isObject(eventName) && !_isArray(eventName);
+
+            //@TODO: REDO logic for going into which part of what.
 
             if (temp
                 || (
@@ -990,6 +1005,10 @@
             return this;
         };
 
+        publicPSP.hasSub = function () {
+            return _PSP.hasSub.apply(_PSP, arguments);
+        };
+
         publicPSP.getEventPubCallback = function (eventName, pubConfig) {
             var context;
             if (_isTrueObject(pubConfig)) {
@@ -1011,8 +1030,8 @@
         publicPSP.getEventProxy = function (eventName) {
 
             return {
-                pub: function (args) {
-                    publicPSP.pub(eventName, args);
+                pub: function (args, options) {
+                    publicPSP.pub(eventName, args, options);
                     return this;
                 },
                 sub: function (options) {
@@ -1022,6 +1041,9 @@
                 unSub: function (subId) {
                     publicPSP.unSub(eventName, subId);
                     return this;
+                },
+                hasSub: function (subId) {
+                    return publicPSP.hasSub(eventName, subId);
                 }
             };
         };
@@ -1054,6 +1076,7 @@
     /**
      * Subscribe a function. See params for further info.
      *
+     * @TODO UPDATE DEF
      * @function
      * @static
      * @memberof PrioritizedPubSub
@@ -1066,6 +1089,7 @@
     /**
      * Publish an event for all the subscribers to listen to.
      *
+     * @TODO UPDATE DEF
      * @function
      * @memberof PrioritizedPubSub
      * @param   {eventName|eventName[]}     eventName
@@ -1087,6 +1111,18 @@
     PrioritizedPubSub.unSub = _globalPSP.unSub;
 
     /**
+     * Find out if the subId already exist as a subscription
+     *
+     * @function
+     * @static
+     * @memberof PrioritizedPubSub
+     * @param {eventName}                               eventName
+     * @param {subscriptionId|subscriptionId[]|RegExp}  subId
+     * @returns {boolean|object}
+     */
+    PrioritizedPubSub.hasSub = _globalPSP.hasSub;
+
+    /**
      * Returns a function for use in publishing to an event
      * @example
      *
@@ -1098,6 +1134,7 @@
      *
      *  PrioritizedPubSub('myEvent', {pub:{arg1:1, arg2: 2}});
      *
+     * @TODO UPDATE DEF
      * @function
      * @static
      * @memberof PrioritizedPubSub
