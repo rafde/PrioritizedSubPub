@@ -446,7 +446,8 @@
     Subscriptions.prototype = {
         constructor: Subscriptions,
         /**
-         * Updates or adds subscriber id with new definition.
+         * Updates or adds subscriber id with new
+         * @alias replaceSubId
          * @param {object} config
          */
         reSI: function (config) {
@@ -482,6 +483,7 @@
         /**
          * Find and remove subId from list of priorities.
          * If untrack is true or undefined, then delete from list of subIds
+         * @alias removeSubId
          * @param {string} subId
          * @param {undefined|boolean} [untrack=undefined]
          * @returns {boolean}
@@ -526,6 +528,11 @@
             _debugLog(this.eN + ' had nothing to remove for ' + subId);
             return false;
         },
+        /**
+         * Remove by subId that matches RegExp
+         * @alias removeSubIdByRegExp
+         * @param subIdRE
+         */
         rmSIR: function (subIdRE) {
             var subId,
                 subIds = this.sI;
@@ -536,6 +543,14 @@
                 }
             }
         },
+        /**
+         * publish to subscriber
+         * @alias publishToSubscriber
+         * @param subId
+         * @param data
+         * @param pubOptions
+         * @returns {*}
+         */
         p2S: function (subId, data, pubOptions) {
             var options = _getObjectIfValueNotObject(pubOptions),
                 publishContext = options.context,
@@ -601,6 +616,11 @@
             }
             return null;
         },
+        /**
+         *
+         * @param args
+         * @param options
+         */
         publish: function (args, options) {
             var tidx = 0,
                 timing,
@@ -885,12 +905,32 @@
         /**
          * Find out if the subId already exist as a subscription
          * @TODO FINISH
-         * @param {eventName} subName
+         * @param {eventName} eventName
          * @param {subId|subId[]|RegExp} subId
          * @returns {boolean|object}
          */
-        hasSub: function (subName, subId){
-            return true || [];
+        hasSubId: function (eventName, subId){
+            var event,
+                isRegExp,
+                subIdArr,
+                result = false;
+
+            if(
+                _isString(eventName)
+                && (event = this.getSub(eventName, false))
+            ){
+                if(_isRegExp(subId)) {
+                    //@TODO find by regexp
+                    return result;
+                }
+
+                subIdArr = _stringToArray(subId);
+
+                if (_isArray(subIdArr)) {
+                    //@TODO loop and return as boolean or object with subId:boolean
+                }
+            }
+            return result;
         },
 
         /**
@@ -1005,8 +1045,8 @@
             return this;
         };
 
-        publicPSP.hasSub = function () {
-            return _PSP.hasSub.apply(_PSP, arguments);
+        publicPSP.hasSubId = function () {
+            return _PSP.hasSubId.apply(_PSP, arguments);
         };
 
         publicPSP.getEventPubCallback = function (eventName, pubConfig) {
@@ -1042,8 +1082,8 @@
                     publicPSP.unSub(eventName, subId);
                     return this;
                 },
-                hasSub: function (subId) {
-                    return publicPSP.hasSub(eventName, subId);
+                hasSubId: function (subId) {
+                    return publicPSP.hasSubId(eventName, subId);
                 }
             };
         };
@@ -1120,7 +1160,7 @@
      * @param {subscriptionId|subscriptionId[]|RegExp}  subId
      * @returns {boolean|object}
      */
-    PrioritizedPubSub.hasSub = _globalPSP.hasSub;
+    PrioritizedPubSub.hasSubId = _globalPSP.hasSubId;
 
     /**
      * Returns a function for use in publishing to an event
@@ -1169,7 +1209,8 @@
      *      {
      *          pub: function,
      *          sub: function,
-     *          unSub: function
+     *          unSub: function,
+     *          hasSubId: function
      *      }
      *  }
      */
