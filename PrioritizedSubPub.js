@@ -446,8 +446,8 @@
     Subscriptions.prototype = {
         constructor: Subscriptions,
         /**
+         * replaceSubId:<br/>
          * Updates or adds subscriber id with new
-         * @alias replaceSubId
          * @param {object} config
          */
         reSI: function (config) {
@@ -481,6 +481,7 @@
             priority.push(configSubId);
         },
         /**
+         * removeSubId:<br/>
          * Find and remove subId from list of priorities.
          * If untrack is true or undefined, then delete from list of subIds
          * @alias removeSubId
@@ -529,23 +530,31 @@
             return false;
         },
         /**
+         * removeSubIdByRegExp:<br/>
          * Remove by subId that matches RegExp
-         * @alias removeSubIdByRegExp
-         * @param subIdRE
+         * @param subIdRegExp
          */
-        rmSIR: function (subIdRE) {
+        rmSIR: function (subIdRegExp) {
             var subId,
                 subIds = this.sI;
 
             for(subId in subIds){
-                if(subIds.hasOwnProperty(subId) && subIdRE.test(subId)) {
+                if(this.hSI(subId) && subIdRegExp.test(subId)) {
                     this.rmSI(subId);
                 }
             }
         },
         /**
-         * publish to subscriber
-         * @alias publishToSubscriber
+         * hasSubId:</br>
+         * Check to see if there is a subscription id in the list that matches the parameter.
+         * @param subId
+         */
+        hSI : function (subId){
+            return _isString(subId) && this.sI.hasOwnProperty(subId);
+        },
+        /**
+         * publishToSubscriber:<br/>
+         * sends data to subscriber by subId
          * @param subId
          * @param data
          * @param pubOptions
@@ -904,33 +913,21 @@
 
         /**
          * Find out if the subId already exist as a subscription
-         * @TODO FINISH
          * @param {eventName} eventName
-         * @param {subId|subId[]|RegExp} subId
-         * @returns {boolean|object}
+         * @param {subId} subId
+         * @returns {boolean}
          */
         hasSubId: function (eventName, subId){
-            var event,
-                isRegExp,
-                subIdArr,
-                result = false;
+            var event;
 
             if(
                 _isString(eventName)
+                && _isString(subId)
                 && (event = this.getSub(eventName, false))
             ){
-                if(_isRegExp(subId)) {
-                    //@TODO find by regexp
-                    return result;
-                }
-
-                subIdArr = _stringToArray(subId);
-
-                if (_isArray(subIdArr)) {
-                    //@TODO loop and return as boolean or object with subId:boolean
-                }
+                return event.hSI(subId);
             }
-            return result;
+            return false;
         },
 
         /**
